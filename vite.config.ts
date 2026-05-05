@@ -33,4 +33,14 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  // 开发服务器代理：把 /api 请求转发到 FastAPI 后端，避免浏览器 CORS 限制
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+    },
+  },
 })

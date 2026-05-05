@@ -3,79 +3,211 @@
 :root {
   --font-size: 16px;
   --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
+  --foreground: #0A0A0A;
   --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
+  --card-foreground: #0A0A0A;
+  --popover: #ffffff;
+  --popover-foreground: #0A0A0A;
+  --primary: #0A0A0A;
+  --primary-foreground: #ffffff;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #0A0A0A;
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+  --accent: #F5F5F5;
+  --accent-foreground: #0A0A0A;
+  --destructive: #DC2626;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
+  --border: #E5E5E5;
   --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
+  --input-background: #ffffff;
+  --switch-background: #D4D4D4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --ring: #4F46E5;
+  --chart-1: #4F46E5;
+  --chart-2: #6B7280;
+  --chart-3: #9CA3AF;
+  --chart-4: #D1D5DB;
+  --chart-5: #E5E7EB;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0A0A0A;
+  --sidebar-primary: #4F46E5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #0A0A0A;
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: #4F46E5;
+
+  /* ============================================================
+   * Bulletin 极简色板（A 风格）
+   *
+   * 五个 token 撑起整站：
+   *   白底 / 黑字 / 灰次字 / 浅边 / 紫 accent
+   * 不再做"亮色拼接 / 多色块"。视觉层次靠 typography + 留白。
+   * ============================================================ */
+
+  /* 底色（最多两档：纯白 + 极轻暖白） */
+  --bg-page:           #FFFFFF;
+  --bg-surface:        #FAFAFA;  /* 仅在需要"卡片旁的极淡区分"时用 */
+  --bg-topbar:         rgba(255,255,255,0.92);
+  --bg-card:           #FFFFFF;
+  --bg-card-hover:     #FAFAFA;
+
+  /* 文本 */
+  --text-primary:      #0A0A0A;  /* 主文字 */
+  --text-secondary:    #666666;  /* 次要文字 */
+  --text-tertiary:     #999999;  /* 第三级文字 / hint */
+
+  /* 边框 */
+  --border-soft:       #E5E5E5;  /* 主边框 */
+  --border-softer:     #F0F0F0;  /* 次边框（divider） */
+  --border-hover:      #D4D4D4;  /* hover 时边框颜色 */
+
+  /* ============================================================
+   * Brand 紫色 ramp —— 提炼自 figma 8f032d0（hero 深紫渐变 + indigo brand）
+   * 用 ramp 取代单色，让按钮 / hover / 焦点环 / 选中态有递进层次
+   * ============================================================ */
+  --accent-purple:        #4F46E5;  /* 主紫（默认 / wordmark / link / focus border） */
+  --accent-purple-hover:  #4338CA;  /* hover 深一档 */
+  --accent-purple-active: #3730A3;  /* active / 按下 */
+  --accent-purple-light:  #6D28D9;  /* 渐变次色（figma hero 风） */
+  --accent-purple-soft:   rgba(79,70,229,0.08);   /* 选中态浅底（保留原值，组件已引用） */
+  --accent-purple-softer: rgba(79,70,229,0.04);   /* 极弱底（背景 subtle 紫） */
+  --accent-purple-ring:   rgba(79,70,229,0.16);   /* focus ring 外圈 */
+  --accent-purple-border: rgba(79,70,229,0.22);   /* 紫色边（略加深，hero 风） */
+  --accent-indigo-deep:   #1E0A3C;  /* figma hero 深紫起色（仅供 gradient 引用，不强制使用） */
+
+  /* ============================================================
+   * Shadow tier —— 高级感的关键，分四档
+   * 目标：clean、不脏；只走中性灰 alpha，不加彩色
+   * ============================================================ */
+  --shadow-xs:  0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm:  0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md:  0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg:  0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
+  --shadow-purple-glow: 0 0 0 3px rgba(79, 70, 229, 0.16);  /* focus ring */
+  --shadow-purple-cta:  0 1px 2px rgba(79, 70, 229, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);  /* 主紫按钮 inset 反光 */
+
+  /* ============================================================
+   * 字距 —— figma 风高级感：标题更紧、正文略松
+   * ============================================================ */
+  --tracking-display: -0.035em;  /* 大标题 / hero */
+  --tracking-heading: -0.02em;   /* 普通标题 */
+  --tracking-tight:   -0.01em;   /* 副标题 / 按钮 */
+  --tracking-wide:    0.06em;    /* 小写 label */
+
+  /* ============================================================
+   * 历史 token：保留并映射到新 ramp，避免组件引用错误
+   * ============================================================ */
+  --bg-sidebar:        #FFFFFF;
+  --bg-main:           #FFFFFF;
+  --bg-rightpanel:     #FFFFFF;
+  --bg-accent-purple:  var(--accent-purple-softer);
+  --bg-accent-blue:    #FAFAFA;
+  --bg-accent-mint:    #FAFAFA;
+  --bg-accent-amber:   #FAFAFA;
+  --bg-accent-pink:    #FAFAFA;
+  --bg-accent-orange:  #FAFAFA;
+  --border-purple:     var(--accent-purple-border);
+  --accent-purple-2:   var(--accent-purple-hover);
+
+  /* ============================================================
+   * Category 多色映射（element-level，非底色）
+   * 来自 figma 8f032d0：浅底 + 深字 + dot/边
+   * 7 种 category 各自独立颜色，仅用于 badge / accent / 头像 / chip
+   * 底色（Sidebar / Main / RightPanel）一律纯白 / 暖白，不染色
+   * ============================================================ */
+  /* Jobs — Indigo */
+  --cat-jobs-bg:        rgba(99,102,241,0.10);
+  --cat-jobs-text:      #3730A3;
+  --cat-jobs-dot:       #6366F1;
+  --cat-jobs-border:    rgba(99,102,241,0.22);
+  /* Projects — Purple */
+  --cat-projects-bg:        rgba(139,92,246,0.10);
+  --cat-projects-text:      #5B21B6;
+  --cat-projects-dot:       #8B5CF6;
+  --cat-projects-border:    rgba(139,92,246,0.22);
+  /* Marketplace — Orange */
+  --cat-marketplace-bg:        rgba(249,115,22,0.10);
+  --cat-marketplace-text:      #C2410C;
+  --cat-marketplace-dot:       #F97316;
+  --cat-marketplace-border:    rgba(249,115,22,0.22);
+  /* Skills — Green */
+  --cat-skills-bg:        rgba(34,197,94,0.10);
+  --cat-skills-text:      #15803D;
+  --cat-skills-dot:       #22C55E;
+  --cat-skills-border:    rgba(34,197,94,0.22);
+  /* Housing — Teal */
+  --cat-housing-bg:        rgba(20,184,166,0.10);
+  --cat-housing-text:      #0F766E;
+  --cat-housing-dot:       #14B8A6;
+  --cat-housing-border:    rgba(20,184,166,0.22);
+  /* Events — Rose */
+  --cat-events-bg:        rgba(244,63,94,0.10);
+  --cat-events-text:      #BE123C;
+  --cat-events-dot:       #F43F5E;
+  --cat-events-border:    rgba(244,63,94,0.22);
+  /* All / 其他 — Slate */
+  --cat-all-bg:        rgba(100,116,139,0.10);
+  --cat-all-text:      #475569;
+  --cat-all-dot:       #64748B;
+  --cat-all-border:    rgba(100,116,139,0.22);
+
+  /* 状态 chip 多色（status pill on PostCard / detail panel）
+   * open / pinned / closed / expired / new / hot / featured */
+  --status-open-bg:      rgba(34,197,94,0.10);
+  --status-open-text:    #15803D;
+  --status-pinned-bg:    rgba(79,70,229,0.10);
+  --status-pinned-text:  #4F46E5;
+  --status-closed-bg:    rgba(100,116,139,0.10);
+  --status-closed-text:  #475569;
+  --status-expired-bg:   rgba(120,113,108,0.10);
+  --status-expired-text: #78716C;
+  --status-new-bg:       rgba(59,130,246,0.10);
+  --status-new-text:     #1D4ED8;
+  --status-hot-bg:       rgba(244,63,94,0.10);
+  --status-hot-text:     #BE123C;
+  --status-featured-bg:  rgba(245,158,11,0.10);
+  --status-featured-text:#B45309;
+  --status-badge-red:    #DC2626;  /* unread / notification dot */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* 暗色模式不再支持，保留为同色（不破坏组件） */
+  --background: #ffffff;
+  --foreground: #0A0A0A;
+  --card: #ffffff;
+  --card-foreground: #0A0A0A;
+  --popover: #ffffff;
+  --popover-foreground: #0A0A0A;
+  --primary: #0A0A0A;
+  --primary-foreground: #ffffff;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #0A0A0A;
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+  --accent: #F5F5F5;
+  --accent-foreground: #0A0A0A;
+  --destructive: #DC2626;
+  --destructive-foreground: #ffffff;
+  --border: #E5E5E5;
+  --input: transparent;
+  --ring: #4F46E5;
+  --chart-1: #4F46E5;
+  --chart-2: #6B7280;
+  --chart-3: #9CA3AF;
+  --chart-4: #D1D5DB;
+  --chart-5: #E5E7EB;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0A0A0A;
+  --sidebar-primary: #4F46E5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #0A0A0A;
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: #4F46E5;
 }
 
 @theme inline {
@@ -126,31 +258,48 @@
 
   body {
     @apply bg-background text-foreground;
-    background: #EDEBE5;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* 极简：纯白底 + 黑字；中文 PingFang SC 优先（强制） */
+    background: var(--bg-page);
+    color: var(--text-primary);
+    /* figma 风字体栈：PingFang SC 优先（中英共用） + Inter 现代衬线感 */
+    font-family: "PingFang SC", "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    /* 略略松一点的字距，提升正文呼吸 */
+    letter-spacing: -0.005em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* 文本下采样更平滑（figma 高级感关键） */
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv01", "cv11";
   }
 
+  /* 标题字体：PingFang SC 优先（中英共用），更强字重 + figma 风紧字距 */
+  h1, h2, h3, h4 {
+    font-family: "PingFang SC", "SF Pro Display", "Inter", system-ui, sans-serif;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  /* 极细滚动条（figma 风更克制） */
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.12);
+    background: rgba(15, 23, 42, 0.10);
     border-radius: 99px;
+    transition: background 200ms ease-out;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,0,0,0.22);
+    background: rgba(79, 70, 229, 0.32);
   }
 
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
+  /* 选中文字的反白用紫色，呼应 brand */
+  ::selection {
+    background: rgba(79, 70, 229, 0.18);
+    color: var(--text-primary);
+  }
 
   html {
     font-size: var(--font-size);
@@ -158,26 +307,26 @@
 
   h1 {
     font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 700;
+    line-height: 1.25;
   }
 
   h2 {
     font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.35;
   }
 
   h3 {
     font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.4;
   }
 
   h4 {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.4;
   }
 
   label {

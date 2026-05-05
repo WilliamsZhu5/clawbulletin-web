@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { Search, Plus, X, ChevronDown, Bot } from 'lucide-react';
+import { Search, Plus, X, ChevronDown, Bot, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { currentUser } from '../../data/mockData';
 import { useLanguage } from '../../context/LanguageContext';
 import type { TranslationKey } from '../../i18n/translations';
+import { 已登录 } from '../../data/api';
 
+// 极简爪子 logo —— 全黑笔触（极简风的 logo 不渐变）
 function ClawLogo() {
   return (
     <svg width="20" height="26" viewBox="0 0 20 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Three minimal claw strokes — left is boldest, fades right */}
       <path
         d="M2 2 C2.5 7 3.5 13 5.5 21 C6 23 6.5 24.5 7.5 25"
-        stroke="#1E1B4B"
+        stroke="#0A0A0A"
         strokeWidth="2.4"
         strokeLinecap="round"
         fill="none"
       />
       <path
         d="M10 2 C10.5 7 11.5 13 13.5 21 C14 23 14.5 24.5 15.5 25"
-        stroke="#1E1B4B"
+        stroke="#0A0A0A"
         strokeWidth="2.4"
         strokeLinecap="round"
         fill="none"
@@ -26,7 +26,7 @@ function ClawLogo() {
       />
       <path
         d="M18 4 C18.2 9 18.5 15 19 22"
-        stroke="#1E1B4B"
+        stroke="#0A0A0A"
         strokeWidth="2.4"
         strokeLinecap="round"
         fill="none"
@@ -36,12 +36,15 @@ function ClawLogo() {
   );
 }
 
-export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; onOpenAgent?: () => void }) {
+export function TopBar({ onOpenPost, onOpenAgent: _onOpenAgent }: { onOpenPost?: () => void; onOpenAgent?: () => void }) {
   const navigate = useNavigate();
   const { lang, setLang, t } = useLanguage();
   const [localQuery, setLocalQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+
+  // 已登录态的账号区已搬到 Sidebar 左下角；TopBar 仅保留未登录的「登录」按钮
+  const 登录中 = 已登录();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,11 +58,11 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
       className="fixed top-0 left-0 right-0 z-40"
       style={{
         height: '56px',
-        background: 'rgba(255,255,255,0.88)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: '0 1px 0 rgba(0,0,0,0.04)',
+        background: 'rgba(255,255,255,0.82)',
+        backdropFilter: 'saturate(180%) blur(16px)',
+        WebkitBackdropFilter: 'saturate(180%) blur(16px)',
+        borderBottom: '1px solid rgba(15,23,42,0.06)',
+        boxShadow: '0 1px 0 rgba(15,23,42,0.02)',
       }}
     >
       <div className="h-full flex items-center px-5 gap-4">
@@ -74,35 +77,32 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
             <span
               className="block"
               style={{
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 800,
-                letterSpacing: '-0.03em',
+                letterSpacing: '-0.035em',
                 lineHeight: '1',
-                background: 'linear-gradient(135deg, #1E0A3C 0%, #4F46E5 55%, #7C3AED 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: '#4F46E5',
               }}
             >
-              ClawBulletin
+              Bulletin
             </span>
           </div>
         </button>
 
         {/* Divider */}
-        <div className="w-px h-5 shrink-0" style={{ background: 'rgba(0,0,0,0.1)' }} />
+        <div className="w-px h-5 shrink-0" style={{ background: '#F0F0F0' }} />
 
         {/* ── Search ── */}
         <form onSubmit={handleSearch} className="flex-1 max-w-lg">
           <div
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl transition-all duration-200"
             style={{
-              border: focused ? '1px solid #4F46E5' : '1px solid rgba(0,0,0,0.1)',
-              background: focused ? 'white' : 'rgba(0,0,0,0.04)',
-              boxShadow: focused ? '0 0 0 3px rgba(79,70,229,0.1)' : 'none',
+              border: focused ? '1px solid #4F46E5' : '1px solid #E5E5E5',
+              background: focused ? '#FFFFFF' : '#FAFAFA',
+              boxShadow: focused ? '0 0 0 3px rgba(79,70,229,0.16)' : '0 1px 2px rgba(15,23,42,0.03)',
             }}
           >
-            <Search className="shrink-0" style={{ width: '15px', height: '15px', color: focused ? '#4F46E5' : '#999994' }} />
+            <Search className="shrink-0" style={{ width: '15px', height: '15px', color: focused ? '#4F46E5' : '#999999' }} />
             <input
               type="text"
               value={localQuery}
@@ -111,11 +111,11 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
               onBlur={() => setFocused(false)}
               placeholder={t('search.placeholder' as TranslationKey)}
               className="flex-1 bg-transparent outline-none min-w-0"
-              style={{ fontSize: '13px', color: '#141414' }}
+              style={{ fontSize: '13px', color: '#0A0A0A' }}
             />
             {localQuery && (
               <button type="button" onClick={() => setLocalQuery('')}>
-                <X style={{ width: '13px', height: '13px', color: '#999994' }} />
+                <X style={{ width: '13px', height: '13px', color: '#999999' }} />
               </button>
             )}
           </div>
@@ -133,10 +133,12 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
               style={{
                 fontSize: '11px',
                 fontWeight: 600,
-                color: '#444440',
-                border: '1px solid rgba(0,0,0,0.1)',
-                background: 'rgba(0,0,0,0.03)',
+                color: '#666666',
+                border: '1px solid #E5E5E5',
+                background: '#FFFFFF',
               }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D4D4D4'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E5E5'; }}
             >
               <span>{lang === 'en' ? 'EN' : '中'}</span>
               <ChevronDown style={{ width: '11px', height: '11px', transform: showLangMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
@@ -145,7 +147,7 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
             {showLangMenu && (
               <div
                 className="absolute right-0 top-full mt-1.5 bg-white rounded-xl overflow-hidden z-50"
-                style={{ minWidth: '110px', boxShadow: '0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)' }}
+                style={{ minWidth: '110px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', border: '1px solid #E5E5E5' }}
               >
                 {[
                   { code: 'en' as const, label: 'English' },
@@ -158,71 +160,83 @@ export function TopBar({ onOpenPost, onOpenAgent }: { onOpenPost?: () => void; o
                     style={{
                       fontSize: '13px',
                       fontWeight: lang === opt.code ? 600 : 400,
-                      color: '#141414',
-                      background: lang === opt.code ? '#F4F4F2' : 'transparent',
+                      color: '#0A0A0A',
+                      background: lang === opt.code ? '#F5F5F5' : 'transparent',
                     }}
-                    onMouseEnter={(e) => { if (lang !== opt.code) (e.currentTarget as HTMLButtonElement).style.background = '#F8F8F6'; }}
+                    onMouseEnter={(e) => { if (lang !== opt.code) (e.currentTarget as HTMLButtonElement).style.background = '#FAFAFA'; }}
                     onMouseLeave={(e) => { if (lang !== opt.code) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                   >
                     {opt.label}
-                    {lang === opt.code && <div className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />}
+                    {lang === opt.code && <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#4F46E5' }} />}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Agent CTA */}
+          {/* 跟我的 Agent 聊（A1）— 极简紫色 outlined */}
           <button
-            onClick={onOpenAgent}
+            onClick={() => navigate('/my-agent')}
+            title="跟我的 Agent 聊"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all"
             style={{
               fontSize: '12px',
               fontWeight: 600,
               color: '#4F46E5',
-              background: 'rgba(79,70,229,0.07)',
-              border: '1px solid rgba(99,102,241,0.18)',
+              background: '#FFFFFF',
+              border: '1px solid #E5E5E5',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(79,70,229,0.12)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(79,70,229,0.07)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#4F46E5'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E5E5'; }}
           >
             <Bot style={{ width: '13px', height: '13px' }} />
-            <span>Ask Agent</span>
+            <span>跟 Agent 聊</span>
           </button>
 
-          {/* Post CTA */}
+          {/* Post CTA —— 主紫实心 + figma 风渐变 inset 反光 */}
           <button
             onClick={onOpenPost}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all"
             style={{
               fontSize: '12px',
               fontWeight: 600,
-              color: 'white',
-              background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
-              boxShadow: '0 2px 12px rgba(79,70,229,0.35)',
+              letterSpacing: '-0.005em',
+              color: '#FFFFFF',
+              background: 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)',
+              boxShadow: '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 20px rgba(79,70,229,0.5)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 12px rgba(79,70,229,0.35)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #4F46E5 0%, #4338CA 60%, #3730A3 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
           >
             <Plus style={{ width: '14px', height: '14px' }} />
             <span>{t('action.post' as TranslationKey)}</span>
           </button>
 
-          {/* Avatar */}
-          <button
-            onClick={() => navigate(`/u/${currentUser.username}`)}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 transition-all"
-            style={{
-              backgroundColor: currentUser.avatarColor,
-              fontSize: '10px',
-              fontWeight: 700,
-              boxShadow: '0 0 0 2px transparent',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 0 2px #4F46E5, 0 0 0 4px rgba(79,70,229,0.2)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 0 2px transparent'; }}
-          >
-            {currentUser.avatarInitials}
-          </button>
+          {/* ── 鉴权区 ── 已登录的账号区已搬到 Sidebar 左下角，这里只剩未登录的「登录」按钮 */}
+          {!登录中 && (
+            <button
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all"
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#4F46E5',
+                background: '#FFFFFF',
+                border: '1px solid #4F46E5',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#4F46E5';
+                (e.currentTarget as HTMLButtonElement).style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF';
+                (e.currentTarget as HTMLButtonElement).style.color = '#4F46E5';
+              }}
+            >
+              <LogIn style={{ width: '13px', height: '13px' }} />
+              <span>登录</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

@@ -17,10 +17,10 @@ import { currentUser } from '../data/mockData';
 type SettingsSection = 'profile' | 'notifications' | 'privacy' | 'talkto' | 'integrations';
 
 const sections: Array<{ id: SettingsSection; label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }> = [
-  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'profile', label: '个人资料', icon: User },
   { id: 'talkto', label: 'talkto.me', icon: Link },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'privacy', label: 'Privacy & Visibility', icon: Eye },
+  { id: 'notifications', label: '通知', icon: Bell },
+  { id: 'privacy', label: '隐私与可见性', icon: Eye },
 ];
 
 interface ToggleSwitchProps {
@@ -83,7 +83,7 @@ export function SettingsPage() {
       <div
         className="rounded-2xl mb-6 px-5 py-4 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 55%, #0A1628 100%)',
+          background: 'linear-gradient(135deg, #4F46E5 0%, #6D28D9 55%, #5B21B6 100%)',
           boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
         }}
       >
@@ -92,10 +92,10 @@ export function SettingsPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-1">
             <Settings style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.7)' }} />
-            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>CLAWBULLETIN</span>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>BULLETIN</span>
           </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Settings</h1>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>Manage your account, notifications, and preferences</p>
+          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>设置</h1>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>管理账户、通知与偏好设置</p>
         </div>
       </div>
 
@@ -137,14 +137,14 @@ export function SettingsPage() {
           {activeSection === 'profile' && (
             <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
               <h2 className="text-[#141414] mb-5" style={{ fontSize: '15px', fontWeight: 600 }}>
-                Profile information
+                个人资料
               </h2>
 
               <div className="flex flex-col gap-4 mb-6">
                 {/* Avatar */}
                 <div>
                   <label className="block text-[#141414] mb-2" style={{ fontSize: '12px', fontWeight: 500 }}>
-                    Avatar
+                    头像
                   </label>
                   <div className="flex items-center gap-3">
                     <div
@@ -155,7 +155,7 @@ export function SettingsPage() {
                     </div>
                     <div>
                       <p className="text-[#666660]" style={{ fontSize: '12px' }}>
-                        Your avatar uses your initials. Custom avatars coming soon.
+                        头像使用你的姓名首字母，自定义头像即将上线。
                       </p>
                     </div>
                   </div>
@@ -164,7 +164,7 @@ export function SettingsPage() {
                 {/* Display name */}
                 <div>
                   <label className="block text-[#141414] mb-1.5" style={{ fontSize: '12px', fontWeight: 500 }}>
-                    Display name
+                    显示名称
                   </label>
                   <input
                     type="text"
@@ -178,7 +178,7 @@ export function SettingsPage() {
                 {/* Username */}
                 <div>
                   <label className="block text-[#141414] mb-1.5" style={{ fontSize: '12px', fontWeight: 500 }}>
-                    Username
+                    用户名
                   </label>
                   <div className="flex items-center gap-2">
                     <div
@@ -196,14 +196,14 @@ export function SettingsPage() {
                     />
                   </div>
                   <p className="text-[#999994] mt-1.5" style={{ fontSize: '11px' }}>
-                    Your talkto.me link will update to reflect your username.
+                    你的 talkto.me 链接会同步更新为新用户名。
                   </p>
                 </div>
 
                 {/* Bio */}
                 <div>
                   <label className="block text-[#141414] mb-1.5" style={{ fontSize: '12px', fontWeight: 500 }}>
-                    Bio
+                    简介
                   </label>
                   <textarea
                     value={bio}
@@ -227,7 +227,7 @@ export function SettingsPage() {
                   className="flex items-center gap-1.5 text-[#666660] hover:text-[#141414] transition-colors"
                   style={{ fontSize: '12px' }}
                 >
-                  View public profile
+                  查看公开主页
                   <ExternalLink className="w-3 h-3" />
                 </button>
 
@@ -243,10 +243,10 @@ export function SettingsPage() {
                   {saved ? (
                     <>
                       <Check className="w-4 h-4" />
-                      Saved
+                      已保存
                     </>
                   ) : (
-                    'Save changes'
+                    '保存修改'
                   )}
                 </button>
               </div>
@@ -260,7 +260,7 @@ export function SettingsPage() {
               <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-[#141414]" style={{ fontSize: '15px', fontWeight: 600 }}>
-                    talkto.me connection
+                    talkto.me 连接
                   </h2>
                   {ttmConnected && (
                     <span
@@ -268,7 +268,7 @@ export function SettingsPage() {
                       style={{ fontSize: '11px', fontWeight: 500 }}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-                      Connected
+                      已连接
                     </span>
                   )}
                 </div>
@@ -296,7 +296,7 @@ export function SettingsPage() {
                 {/* IM Channel */}
                 <div>
                   <label className="block text-[#141414] mb-2" style={{ fontSize: '12px', fontWeight: 500 }}>
-                    Forward messages via
+                    消息转发渠道
                   </label>
                   <div className="flex flex-col gap-2">
                     {(['telegram', 'whatsapp', 'email'] as const).map((channel) => (
@@ -310,7 +310,7 @@ export function SettingsPage() {
                         }`}
                       >
                         <span className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                          {channel.charAt(0).toUpperCase() + channel.slice(1)}
+                          {channel === 'telegram' ? 'Telegram' : channel === 'whatsapp' ? 'WhatsApp' : '邮箱'}
                         </span>
                         <div
                           className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -328,17 +328,17 @@ export function SettingsPage() {
               {/* Message screening */}
               <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
                 <h3 className="text-[#141414] mb-4" style={{ fontSize: '14px', fontWeight: 600 }}>
-                  Message screening
+                  消息筛选
                 </h3>
 
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                        Enable message screening
+                        启用消息筛选
                       </p>
                       <p className="text-[#999994] mt-0.5" style={{ fontSize: '12px' }}>
-                        Your agent reviews and filters incoming messages based on ttm_rules.md
+                        Agent 会按 ttm_rules.md 检查并过滤收到的消息
                       </p>
                     </div>
                     <ToggleSwitch enabled={screeningEnabled} onChange={setScreeningEnabled} />
@@ -349,10 +349,10 @@ export function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                        Allow agent-to-agent messages
+                        允许 Agent 间消息
                       </p>
                       <p className="text-[#999994] mt-0.5" style={{ fontSize: '12px' }}>
-                        Let other OpenClaw agents reach your agent directly (Phase 2 feature)
+                        允许其他 OpenClaw Agent 直接联系你的 Agent（第二阶段功能）
                       </p>
                     </div>
                     <ToggleSwitch enabled={allowAgents} onChange={setAllowAgents} />
@@ -364,7 +364,7 @@ export function SettingsPage() {
                     className="flex items-center gap-1.5 text-[#666660] hover:text-[#141414] transition-colors"
                     style={{ fontSize: '12px' }}
                   >
-                    Edit ttm_rules.md
+                    编辑 ttm_rules.md
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -376,13 +376,13 @@ export function SettingsPage() {
           {activeSection === 'notifications' && (
             <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
               <h2 className="text-[#141414] mb-5" style={{ fontSize: '15px', fontWeight: 600 }}>
-                Notification preferences
+                通知设置
               </h2>
 
               <div className="flex flex-col gap-5">
                 <div>
                   <p className="text-[#999994] mb-3 uppercase tracking-wider" style={{ fontSize: '10px', fontWeight: 600 }}>
-                    Channels
+                    渠道
                   </p>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">
@@ -390,10 +390,10 @@ export function SettingsPage() {
                         <Mail className="w-4 h-4 text-[#999994]" strokeWidth={1.75} />
                         <div>
                           <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                            Email notifications
+                            邮件通知
                           </p>
                           <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                            Activity summaries, new replies, talkto.me messages
+                            活动摘要、新回复、talkto.me 消息
                           </p>
                         </div>
                       </div>
@@ -407,10 +407,10 @@ export function SettingsPage() {
                         <Smartphone className="w-4 h-4 text-[#999994]" strokeWidth={1.75} />
                         <div>
                           <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                            IM notifications
+                            即时通讯通知
                           </p>
                           <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                            Forwarded via your connected IM channel (Telegram / WhatsApp)
+                            通过你绑定的即时通讯渠道转发（Telegram / WhatsApp）
                           </p>
                         </div>
                       </div>
@@ -423,15 +423,15 @@ export function SettingsPage() {
 
                 <div>
                   <p className="text-[#999994] mb-3 uppercase tracking-wider" style={{ fontSize: '10px', fontWeight: 600 }}>
-                    Digest
+                    摘要
                   </p>
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                        Receive digest summaries
+                        接收活动摘要
                       </p>
                       <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                        Batched summaries of all activity instead of individual notifications
+                        把所有活动汇总后发送，而不是逐条通知
                       </p>
                     </div>
                     <ToggleSwitch enabled={notifDigest} onChange={setNotifDigest} />
@@ -450,7 +450,7 @@ export function SettingsPage() {
                           }`}
                           style={{ fontSize: '12px' }}
                         >
-                          {freq.charAt(0).toUpperCase() + freq.slice(1)}
+                          {freq === 'daily' ? '每日' : '每周'}
                         </button>
                       ))}
                     </div>
@@ -463,7 +463,7 @@ export function SettingsPage() {
                   className="px-4 py-2 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors"
                   style={{ fontSize: '13px', fontWeight: 500 }}
                 >
-                  Save preferences
+                  保存设置
                 </button>
               </div>
             </div>
@@ -473,17 +473,17 @@ export function SettingsPage() {
           {activeSection === 'privacy' && (
             <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
               <h2 className="text-[#141414] mb-5" style={{ fontSize: '15px', fontWeight: 600 }}>
-                Privacy & visibility
+                隐私与可见性
               </h2>
 
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                      Public profile
+                      公开主页
                     </p>
                     <p className="text-[#999994] mt-0.5" style={{ fontSize: '12px' }}>
-                      Anyone can view your profile and listings
+                      任何人都能查看你的主页和发布
                     </p>
                   </div>
                   <ToggleSwitch enabled={profilePublic} onChange={setProfilePublic} />
@@ -494,10 +494,10 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                      Appear in search results
+                      出现在搜索结果中
                     </p>
                     <p className="text-[#999994] mt-0.5" style={{ fontSize: '12px' }}>
-                      Your profile appears when others search by name or username
+                      他人按姓名或用户名搜索时，会显示你的主页
                     </p>
                   </div>
                   <ToggleSwitch enabled={showInSearch} onChange={setShowInSearch} />
@@ -508,10 +508,10 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                      Show activity on profile
+                      在主页显示活动
                     </p>
                     <p className="text-[#999994] mt-0.5" style={{ fontSize: '12px' }}>
-                      Show your comment and view activity on your public profile
+                      公开主页上显示你的评论和浏览活动
                     </p>
                   </div>
                   <ToggleSwitch enabled={showActivity} onChange={setShowActivity} />
@@ -521,21 +521,21 @@ export function SettingsPage() {
 
                 <div>
                   <p className="text-[#141414] mb-1" style={{ fontSize: '13px', fontWeight: 500 }}>
-                    Data & account
+                    数据与账户
                   </p>
                   <div className="flex flex-col gap-2 mt-3">
                     <button
                       className="flex items-center justify-between px-4 py-3 rounded-xl border border-[#E8E8E4] text-[#666660] hover:border-[#C8C8C4] hover:text-[#141414] transition-all text-left"
                       style={{ fontSize: '13px' }}
                     >
-                      <span>Export my data</span>
+                      <span>导出我的数据</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                     <button
                       className="flex items-center justify-between px-4 py-3 rounded-xl border border-[#F43F5E]/30 text-[#F43F5E] hover:border-[#F43F5E] hover:bg-[#FFF1F2] transition-all text-left"
                       style={{ fontSize: '13px' }}
                     >
-                      <span>Delete account</span>
+                      <span>删除账户</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -547,7 +547,7 @@ export function SettingsPage() {
                   className="px-4 py-2 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors"
                   style={{ fontSize: '13px', fontWeight: 500 }}
                 >
-                  Save preferences
+                  保存设置
                 </button>
               </div>
             </div>

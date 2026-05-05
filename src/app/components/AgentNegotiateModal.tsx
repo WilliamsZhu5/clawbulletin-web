@@ -20,7 +20,7 @@ interface AgentMessage {
 
 function getTimestamp(offsetMs: number): string {
   const d = new Date(Date.now() + offsetMs);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function generateConversation(post: Post, instruction: string): AgentMessage[] {
@@ -133,15 +133,15 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
   }, [visibleCount]);
 
   const quickSuggestions: Record<string, string[]> = {
-    marketplace: ['Ask for a discount — my ceiling is listed price minus 10%', 'Ask about condition and can they deliver', 'Check if price is negotiable'],
-    jobs: ['Ask about remote flexibility and equity band', 'Understand team size and funding stage', 'Get more details before committing to a call'],
-    projects: ['Understand equity offer and time commitment', 'Ask for a brief async intro before a call', 'Check if this is paid or equity only'],
-    housing: ['Ask about earliest move-in and utilities', 'Ask if lease length is flexible', 'Confirm what is included in rent'],
-    skills: ['Confirm availability and hourly rate', 'Ask about past work examples', 'Understand engagement structure'],
-    events: ['Ask if there are any spots remaining', 'Request the full agenda details', 'Ask about the speaker lineup'],
+    marketplace: ['请压价 —— 上限是标价的 9 折', '问问商品成色，是否可以送达', '确认价格是否可议'],
+    jobs: ['询问是否支持远程，以及期权区间', '了解团队规模和融资阶段', '约电话前先问清更多细节'],
+    projects: ['了解股权比例与每周时间承诺', '约电话前先做异步介绍', '确认是付费还是仅期权'],
+    housing: ['询问最早入住时间和水电费用', '问问租期是否可灵活调整', '确认租金包含哪些项目'],
+    skills: ['确认档期和小时费用', '询问过往作品案例', '了解合作形式'],
+    events: ['询问是否还有名额', '索要完整议程', '了解嘉宾阵容'],
   };
 
-  const suggestions = quickSuggestions[post.category] ?? ['Get more details first', 'Ask about availability', 'Request terms'];
+  const suggestions = quickSuggestions[post.category] ?? ['先问清更多细节', '询问档期', '请对方报条件'];
 
   return (
     <div
@@ -239,7 +239,7 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
               style={{ background: 'rgba(79,70,229,0.06)', border: '1px solid rgba(79,70,229,0.12)' }}
             >
               <Radio style={{ width: '10px', height: '10px', color: '#4F46E5' }} />
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#4F46E5' }}>A2A Protocol</span>
+              <span style={{ fontSize: '10px', fontWeight: 600, color: '#4F46E5' }}>A2A 协议</span>
             </div>
             <button
               onClick={onClose}
@@ -349,7 +349,7 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
               {/* Post reference */}
               <div className="px-4 py-3 rounded-xl" style={{ background: '#FAFAF8', border: '1px solid #EBEBEA' }}>
                 <p style={{ fontSize: '9px', fontWeight: 700, color: '#BBBBB6', letterSpacing: '0.08em', marginBottom: '6px' }}>
-                  REGARDING
+                  关于
                 </p>
                 <p style={{ fontSize: '13px', fontWeight: 600, color: '#141414', marginBottom: '4px' }}>
                   {post.title}
@@ -613,7 +613,7 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
                       {/* Name + time */}
                       <div className={`flex items-center gap-2 ${isYours ? 'flex-row-reverse' : ''}`}>
                         <span style={{ fontSize: '10px', fontWeight: 500, color: '#999994' }}>
-                          {isYours ? `${currentUser.displayName}'s Agent` : `${post.author.displayName}'s Agent`}
+                          {isYours ? `${currentUser.displayName} 的 Agent` : `${post.author.displayName} 的 Agent`}
                         </span>
                         <span style={{ fontSize: '10px', color: '#D8D8D4' }}>{msg.timestamp}</span>
                       </div>
@@ -729,7 +729,7 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(79,70,229,0.3)'; }}
                   >
                     <Handshake style={{ width: '13px', height: '13px' }} />
-                    View in Matches
+                    在匹配里查看
                     <ArrowUpRight style={{ width: '12px', height: '12px' }} />
                   </button>
                 )}
@@ -740,7 +740,7 @@ export function AgentNegotiateModal({ post, onClose }: Props) {
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C8C8C4'; (e.currentTarget as HTMLButtonElement).style.color = '#141414'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E8E8E4'; (e.currentTarget as HTMLButtonElement).style.color = '#666660'; }}
                 >
-                  Close
+                  关闭
                 </button>
               </div>
             </div>

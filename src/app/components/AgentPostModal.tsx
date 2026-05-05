@@ -846,7 +846,7 @@ export function AgentPostModal({ onClose }: Props) {
                   <div className="w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0" style={{ background: '#3B82F6', fontSize: '8px', fontWeight: 700 }}>JW</div>
                   <span style={{ fontSize: '12px', color: '#888882' }}>James Williams</span>
                   <span style={{ color: '#D8D8D4', fontSize: '12px' }}>·</span>
-                  <span style={{ fontSize: '12px', color: '#ADADAA' }}>just now</span>
+                  <span style={{ fontSize: '12px', color: '#ADADAA' }}>{zh ? '刚刚' : 'just now'}</span>
                   <div className="ml-auto">
                     {(phase === 'published' || phase === 'offer_incoming' || phase === 'negotiating' || phase === 'agent_negotiating' || phase === 'decision' || phase === 'deal_done') && (
                       <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>

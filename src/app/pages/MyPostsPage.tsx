@@ -14,9 +14,9 @@ function formatTime(timestamp: string): string {
   const diffMs = now.getTime() - then.getTime();
   const diffHours = diffMs / (1000 * 60 * 60);
   const diffDays = diffHours / 24;
-  if (diffHours < 24) return `${Math.floor(diffHours)}h ago`;
-  if (diffDays < 7) return `${Math.floor(diffDays)}d ago`;
-  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (diffHours < 24) return `${Math.floor(diffHours)} 小时前`;
+  if (diffDays < 7) return `${Math.floor(diffDays)} 天前`;
+  return then.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
 }
 
 export function MyPostsPage() {
@@ -46,10 +46,10 @@ export function MyPostsPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <FileText style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.7)' }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>CLAWBULLETIN</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>BULLETIN</span>
               </div>
-              <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>My Listings</h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>Manage your posts on ClawBulletin</p>
+              <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>我的发布</h1>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>管理你在 Bulletin 上的发布</p>
             </div>
             <button
               onClick={() => navigate('/create')}
@@ -63,7 +63,7 @@ export function MyPostsPage() {
               }}
             >
               <Plus style={{ width: '15px', height: '15px' }} />
-              New listing
+              新建发布
             </button>
           </div>
         </div>
@@ -73,21 +73,21 @@ export function MyPostsPage() {
           {[
             {
               icon: FileText,
-              label: 'Total listings',
+              label: '总发布数',
               value: myPosts.length,
-              sub: 'All time',
+              sub: '累计',
             },
             {
               icon: Eye,
-              label: 'Total views',
+              label: '总浏览量',
               value: totalViews >= 1000 ? `${(totalViews / 1000).toFixed(1)}k` : totalViews,
-              sub: 'Across all listings',
+              sub: '所有发布合计',
             },
             {
               icon: MessageCircle,
-              label: 'Total replies',
+              label: '总回复数',
               value: totalComments,
-              sub: 'Across all listings',
+              sub: '所有发布合计',
             },
           ].map((stat) => {
             const Icon = stat.icon;
@@ -119,10 +119,10 @@ export function MyPostsPage() {
               <FileText className="w-6 h-6 text-[#BBBBB6]" strokeWidth={1.5} />
             </div>
             <p className="text-[#141414] mb-2" style={{ fontSize: '15px', fontWeight: 600 }}>
-              No listings yet
+              暂无发布
             </p>
             <p className="text-[#999994] mb-5" style={{ fontSize: '13px' }}>
-              Create your first listing to share opportunities with the community.
+              创建第一条发布，把你的机会分享给社区。
             </p>
             <button
               onClick={() => navigate('/create')}
@@ -130,7 +130,7 @@ export function MyPostsPage() {
               style={{ fontSize: '13px', fontWeight: 500 }}
             >
               <Plus className="w-4 h-4" />
-              Create a listing
+              创建发布
             </button>
           </div>
         ) : (
@@ -149,7 +149,7 @@ export function MyPostsPage() {
                     }`}
                     style={{ fontSize: '12px', fontWeight: filter === f ? 600 : 400 }}
                   >
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                    {f === 'all' ? '全部' : f === 'active' ? '活跃' : '已归档'}
                   </button>
                 ))}
               </div>
@@ -164,7 +164,7 @@ export function MyPostsPage() {
                   }`}
                   style={{ fontSize: '12px', fontWeight: view === 'list' ? 600 : 400 }}
                 >
-                  Cards
+                  卡片
                 </button>
                 <button
                   onClick={() => setView('table')}
@@ -175,7 +175,7 @@ export function MyPostsPage() {
                   }`}
                   style={{ fontSize: '12px', fontWeight: view === 'table' ? 600 : 400 }}
                 >
-                  Table
+                  列表
                 </button>
               </div>
             </div>
@@ -193,7 +193,7 @@ export function MyPostsPage() {
                   className="grid px-4 py-2.5 border-b border-[#F4F4F2] bg-[#FAFAF8]"
                   style={{ gridTemplateColumns: '1fr 100px 70px 70px 80px' }}
                 >
-                  {['Listing', 'Category', 'Views', 'Replies', 'Posted'].map((h) => (
+                  {['发布标题', '分类', '浏览', '回复', '发布于'].map((h) => (
                     <span
                       key={h}
                       className="text-[#999994] uppercase tracking-wider"

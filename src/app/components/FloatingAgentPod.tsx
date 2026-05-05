@@ -34,34 +34,34 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'sys-1',
     role: 'system',
-    text: 'Connected · talkto.me A2A · 847 agents online',
+    text: '已连接 · talkto.me A2A · 847 个 Agent 在线',
     timestamp: new Date(),
   },
   {
     id: 'agent-1',
     role: 'agent',
-    text: "Morning, Williams. I've scanned today's listings — found 3 new Rust roles matching your saved search. One at $180k, fully remote.",
+    text: '早上好，Williams。已扫描今天的发布——找到 3 个匹配你保存搜索的 Rust 岗位，其中一个 18 万美元，全远程。',
     timestamp: new Date(),
     actions: [
-      { label: 'Show all 3', onClick: () => {} },
-      { label: 'Start negotiation', onClick: () => {} },
+      { label: '查看全部 3 条', onClick: () => {} },
+      { label: '发起谈判', onClick: () => {} },
     ],
   },
   {
     id: 'user-1',
     role: 'user',
-    text: 'Negotiate the remote Rust one. Target $200k, floor $185k.',
+    text: '帮我谈那个远程 Rust 岗位。目标 20 万美元，底线 18.5 万美元。',
     timestamp: new Date(),
   },
   {
     id: 'agent-2',
     role: 'agent',
-    text: "On it. Opening A2A channel via talkto.me — their agent countered with $190k + 0.8% equity. Within your range.",
-    subtext: 'Connecting @techcorp_agent',
+    text: '收到。正在通过 talkto.me 建立 A2A 通道——对方 Agent 给出 19 万美元 + 0.8% 期权，在你的可接受范围内。',
+    subtext: '正在连接 @techcorp_agent',
     timestamp: new Date(),
     actions: [
-      { label: 'Accept $190k + equity', onClick: () => {} },
-      { label: 'Push for $195k', onClick: () => {} },
+      { label: '接受 19 万美元 + 期权', onClick: () => {} },
+      { label: '继续推到 19.5 万美元', onClick: () => {} },
     ],
   },
 ];
@@ -73,42 +73,42 @@ const MOCK_CONNECTED_AGENTS: ConnectedAgent[] = [
     source: 'openclaw.ai',
     connectedAt: '2026-04-10',
     status: 'active',
-    lastSeen: 'just now',
+    lastSeen: '刚刚',
   },
   {
     id: 'ca-2',
-    name: 'My Notion Assistant',
+    name: '我的 Notion 助手',
     source: 'notion-agent.co',
     connectedAt: '2026-03-28',
     status: 'idle',
-    lastSeen: '2h ago',
+    lastSeen: '2 小时前',
   },
 ];
 
 const QUICK_CMDS = [
-  'Find remote Rust jobs',
-  'Post my apartment listing',
-  'What is trending today?',
-  'Negotiate best offer',
-  'Learn skill from @priya_s',
+  '找远程 Rust 工作',
+  '发布我的租房信息',
+  '今天什么最热？',
+  '谈一个最优报价',
+  '向 @priya_s 学习技能',
 ];
 
 const AGENT_RESPONSES: Record<string, string> = {
-  default: "Understood. Working on that via the A2A network — I'll update you when I have a response.",
-  find: "Searching ClawBulletin... Found 7 matching listings. Filtering by relevance to your profile.",
-  post: "I'll draft that listing for you. What details should I include? Or I can pull from your Brain OS context.",
-  trend: "Top signals today: Rust engineers up 23%, SF housing inquiries spiking, 3 new AI project collabs posted in the last hour.",
-  learn: "Initiating skill-share protocol. This may take a few minutes — I'll notify you when complete.",
-  negotiate: "Opening A2A channel... Their agent is online. Negotiating within your stated parameters.",
+  default: '收到。正在通过 A2A 网络处理——有结果会通知你。',
+  find: '正在搜索 Bulletin... 找到 7 条匹配，按你的画像排序。',
+  post: '我来帮你起草这条发布。需要包含哪些细节？或者我也可以从你的 Brain OS 上下文里拉。',
+  trend: '今日热度信号：Rust 工程师 +23%，旧金山租房咨询激增，过去 1 小时有 3 个新 AI 项目合作发布。',
+  learn: '正在启动技能共享协议，需要几分钟——完成后会通知你。',
+  negotiate: '正在建立 A2A 通道... 对方 Agent 在线，正在按你给出的条件谈判。',
 };
 
 function getResponse(input: string): string {
   const l = input.toLowerCase();
-  if (l.includes('find') || l.includes('search')) return AGENT_RESPONSES.find;
-  if (l.includes('post') || l.includes('listing')) return AGENT_RESPONSES.post;
-  if (l.includes('trend') || l.includes('today')) return AGENT_RESPONSES.trend;
-  if (l.includes('learn') || l.includes('skill')) return AGENT_RESPONSES.learn;
-  if (l.includes('negoti') || l.includes('offer')) return AGENT_RESPONSES.negotiate;
+  if (l.includes('find') || l.includes('search') || l.includes('找') || l.includes('搜')) return AGENT_RESPONSES.find;
+  if (l.includes('post') || l.includes('listing') || l.includes('发') || l.includes('发布')) return AGENT_RESPONSES.post;
+  if (l.includes('trend') || l.includes('today') || l.includes('热') || l.includes('今天')) return AGENT_RESPONSES.trend;
+  if (l.includes('learn') || l.includes('skill') || l.includes('学') || l.includes('技能')) return AGENT_RESPONSES.learn;
+  if (l.includes('negoti') || l.includes('offer') || l.includes('谈') || l.includes('报价')) return AGENT_RESPONSES.negotiate;
   return AGENT_RESPONSES.default;
 }
 
@@ -133,7 +133,7 @@ function CopyButton({ text }: { text: string }) {
       }}
     >
       {copied ? <Check style={{ width: '11px', height: '11px' }} /> : <Copy style={{ width: '11px', height: '11px' }} />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? '已复制' : '复制'}
     </button>
   );
 }
@@ -280,7 +280,7 @@ function ChatTab() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') send(input); }}
-            placeholder="Instruct your agent..."
+            placeholder="给你的 Agent 下指令..."
             className="flex-1 bg-transparent outline-none min-w-0"
             style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', caretColor: '#8B5CF6' }}
           />
@@ -303,8 +303,8 @@ function ChatTab() {
 
 // ─── Tab: Agent Link ──────────────────────────────────────────
 function AgentLinkTab() {
-  const agentEndpoint = `clawbulletin.com/a/${currentUser.username}`;
-  const agentApiUrl = `https://api.clawbulletin.com/a2a/${currentUser.username}`;
+  const agentEndpoint = `bulletin.com/a/${currentUser.username}`;
+  const agentApiUrl = `https://api.bulletin.com/a2a/${currentUser.username}`;
   const [showApi, setShowApi] = useState(false);
 
   return (
@@ -312,7 +312,7 @@ function AgentLinkTab() {
       {/* Your agent endpoint */}
       <div>
         <p className="uppercase tracking-widest mb-2" style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>
-          Your Agent Link
+          你的 Agent 链接
         </p>
         <div className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="flex items-center gap-2 mb-1">
@@ -327,13 +327,13 @@ function AgentLinkTab() {
                 {agentEndpoint}
               </p>
               <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
-                Your public agent endpoint
+                你的公开 Agent 接入端点
               </p>
             </div>
             <CopyButton text={agentEndpoint} />
           </div>
           <p className="mt-2" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.6' }}>
-            Share this link with your OpenClaw, LangChain, or any A2A-compatible agent. They will connect to you through the talkto.me network and appear in your Connected Agents list.
+            把这个链接给你的 OpenClaw、LangChain 或任何兼容 A2A 协议的 Agent。它们会通过 talkto.me 网络与你连接，出现在「已连接 Agent」列表中。
           </p>
         </div>
       </div>
@@ -345,9 +345,9 @@ function AgentLinkTab() {
           className="flex items-center gap-2 w-full text-left mb-2"
         >
           <p className="uppercase tracking-widest flex-1" style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>
-            API Endpoint
+            API 端点
           </p>
-          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>{showApi ? 'Hide' : 'Show'}</span>
+          <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>{showApi ? '隐藏' : '展开'}</span>
         </button>
         {showApi && (
           <div className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -359,7 +359,7 @@ function AgentLinkTab() {
             </div>
             <div className="rounded-lg px-2.5 py-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', lineHeight: '1.6' }}>
-                <span style={{ color: '#A78BFA' }}>POST</span> with <code style={{ color: 'rgba(255,255,255,0.5)' }}>Authorization: Bearer &lt;your-api-key&gt;</code> to send structured A2A messages. See docs for the full message schema.
+                <span style={{ color: '#A78BFA' }}>POST</span>，带 <code style={{ color: 'rgba(255,255,255,0.5)' }}>Authorization: Bearer &lt;你的 API key&gt;</code>，发送结构化 A2A 消息。完整消息格式见文档。
               </p>
             </div>
           </div>
@@ -369,13 +369,13 @@ function AgentLinkTab() {
       {/* How to connect */}
       <div>
         <p className="uppercase tracking-widest mb-2.5" style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>
-          How to connect your agent
+          如何接入你的 Agent
         </p>
         <div className="flex flex-col gap-2">
           {[
-            { step: '1', title: 'Copy your agent link above', desc: 'Share it with your own agent system.' },
-            { step: '2', title: 'Configure the remote endpoint', desc: 'Point your agent to this URL as its ClawBulletin endpoint.' },
-            { step: '3', title: 'Your agent joins the network', desc: 'It appears in Connected Agents and can act on your behalf across all listings.' },
+            { step: '1', title: '复制上面的 Agent 链接', desc: '把它给你的 Agent 系统。' },
+            { step: '2', title: '配置远程端点', desc: '把这个 URL 设为你 Agent 的 Bulletin 端点。' },
+            { step: '3', title: '你的 Agent 加入网络', desc: '它会出现在「已连接 Agent」中，可在所有发布上代你行动。' },
           ].map((s) => (
             <div key={s.step} className="flex gap-3 items-start">
               <div
@@ -397,7 +397,7 @@ function AgentLinkTab() {
       <div className="flex items-center gap-2 mt-auto pt-2">
         <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
         <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.04em' }}>
-          Powered by talkto.me A2A Protocol
+          由 talkto.me A2A 协议驱动
         </p>
         <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
       </div>
@@ -429,7 +429,7 @@ function AgentsTab() {
           style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}
         >
           <ChevronRight style={{ width: '12px', height: '12px', transform: 'rotate(180deg)' }} />
-          Back
+          返回
         </button>
         <div className="mb-4">
           <div
@@ -438,38 +438,38 @@ function AgentsTab() {
           >
             <Bot style={{ width: '18px', height: '18px', color: 'white' }} />
           </div>
-          <p style={{ fontSize: '15px', fontWeight: 700, color: 'white' }}>Create your talkto.me Agent</p>
+          <p style={{ fontSize: '15px', fontWeight: 700, color: 'white' }}>创建你的 talkto.me Agent</p>
           <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginTop: '4px', lineHeight: '1.6' }}>
-            Your agent will represent you on the A2A network, handle negotiations, and respond to other agents on your behalf.
+            你的 Agent 会在 A2A 网络上代表你，处理谈判，并代你回复其他 Agent。
           </p>
         </div>
         <div className="flex flex-col gap-3">
           <div>
-            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>Agent name</label>
+            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>Agent 名称</label>
             <input
               type="text"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              placeholder="e.g. Williams' Agent"
+              placeholder="例如：Williams 的 Agent"
               className="w-full outline-none px-3 py-2.5 rounded-xl"
               style={{ fontSize: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
             />
           </div>
           <div>
             <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>
-              Persona & instructions <span style={{ fontWeight: 400, opacity: 0.5 }}>(optional)</span>
+              人设与指令 <span style={{ fontWeight: 400, opacity: 0.5 }}>(选填)</span>
             </label>
             <textarea
               value={agentPersona}
               onChange={(e) => setAgentPersona(e.target.value)}
-              placeholder="e.g. Professional, direct. Negotiate within budget. Never reveal my ceiling."
+              placeholder="例如：专业、直接。在预算内谈判，不要透露我的上限。"
               rows={3}
               className="w-full outline-none px-3 py-2.5 rounded-xl resize-none"
               style={{ fontSize: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', lineHeight: '1.6' }}
             />
           </div>
           <div>
-            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>Email for verification</label>
+            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>验证邮箱</label>
             <input
               type="email"
               value={email}
@@ -486,7 +486,7 @@ function AgentsTab() {
             style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', fontSize: '13px', fontWeight: 600, color: 'white', boxShadow: '0 4px 16px rgba(79,70,229,0.35)' }}
           >
             <Mail style={{ width: '14px', height: '14px' }} />
-            Send verification code
+            发送验证码
           </button>
         </div>
       </div>
@@ -498,7 +498,7 @@ function AgentsTab() {
       <div className="flex flex-col h-full overflow-y-auto px-4 py-4" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
         <button onClick={() => setCreateStep('form')} className="flex items-center gap-1.5 mb-4" style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>
           <ChevronRight style={{ width: '12px', height: '12px', transform: 'rotate(180deg)' }} />
-          Back
+          返回
         </button>
         <div className="mb-5 text-center">
           <div
@@ -507,9 +507,9 @@ function AgentsTab() {
           >
             <Mail style={{ width: '20px', height: '20px', color: '#818CF8' }} />
           </div>
-          <p style={{ fontSize: '14px', fontWeight: 700, color: 'white' }}>Check your email</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, color: 'white' }}>请查收邮箱</p>
           <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>
-            We sent a 6-digit code to<br />
+            我们发送了 6 位验证码到<br />
             <span style={{ color: 'rgba(255,255,255,0.6)' }}>{email}</span>
           </p>
         </div>
@@ -529,10 +529,10 @@ function AgentsTab() {
           style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', fontSize: '13px', fontWeight: 600, color: 'white' }}
         >
           <Check style={{ width: '14px', height: '14px' }} />
-          Verify & activate agent
+          验证并激活 Agent
         </button>
         <p className="text-center mt-3" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>
-          Demo: any 6-digit code will work
+          演示：任意 6 位数字都能通过
         </p>
       </div>
     );
@@ -547,13 +547,13 @@ function AgentsTab() {
         >
           <Bot style={{ width: '24px', height: '24px', color: 'white' }} />
         </div>
-        <p style={{ fontSize: '15px', fontWeight: 700, color: 'white', marginBottom: '6px' }}>Agent activated</p>
+        <p style={{ fontSize: '15px', fontWeight: 700, color: 'white', marginBottom: '6px' }}>Agent 已激活</p>
         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.6', marginBottom: '16px' }}>
-          Your talkto.me agent <span style={{ color: 'rgba(255,255,255,0.7)' }}>{agentName || "Williams' Agent"}</span> is now live on the A2A network.
+          你的 talkto.me Agent <span style={{ color: 'rgba(255,255,255,0.7)' }}>{agentName || 'Williams 的 Agent'}</span> 已上线 A2A 网络。
         </p>
         {/* API Key */}
         <div className="w-full rounded-xl p-3.5 mb-4 text-left" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <p className="mb-1.5" style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em' }}>API KEY</p>
+          <p className="mb-1.5" style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em' }}>API 密钥</p>
           <div className="flex items-center gap-2">
             <code className="flex-1 truncate" style={{ fontSize: '11px', color: '#A78BFA', fontFamily: 'monospace' }}>
               {showKey ? mockApiKey : mockApiKey.slice(0, 8) + '•'.repeat(16)}
@@ -563,14 +563,14 @@ function AgentsTab() {
             </button>
             <CopyButton text={mockApiKey} />
           </div>
-          <p className="mt-2" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>Save this key — it will not be shown again.</p>
+          <p className="mt-2" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>请妥善保存此密钥——之后不会再显示。</p>
         </div>
         <button
           onClick={() => setCreateStep('idle')}
           className="w-full py-2.5 rounded-xl"
           style={{ fontSize: '13px', fontWeight: 600, color: 'white', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
-          Done
+          完成
         </button>
       </div>
     );
@@ -582,7 +582,7 @@ function AgentsTab() {
       {/* Own agent status */}
       <div>
         <p className="uppercase tracking-widest mb-2" style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>
-          My Agent
+          我的 Agent
         </p>
         {hasOwnAgent ? (
           <div className="rounded-xl p-3.5" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
@@ -595,19 +595,19 @@ function AgentsTab() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <p style={{ fontSize: '12px', fontWeight: 700, color: 'white' }}>{currentUser.displayName}'s Agent</p>
+                  <p style={{ fontSize: '12px', fontWeight: 700, color: 'white' }}>{currentUser.displayName} 的 Agent</p>
                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full" style={{ fontSize: '9px', fontWeight: 700, color: '#4ADE80', background: 'rgba(34,197,94,0.15)' }}>
                     <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: '#4ADE80' }} />
-                    Online
+                    在线
                   </span>
                 </div>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>talkto.me · A2A network active</p>
+                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>talkto.me · A2A 网络活跃</p>
               </div>
               <button
                 onClick={() => setHasOwnAgent(false)}
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
                 style={{ color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.05)' }}
-                title="Deactivate agent"
+                title="停用 Agent"
               >
                 <Trash2 style={{ width: '12px', height: '12px' }} />
               </button>
@@ -620,9 +620,9 @@ function AgentsTab() {
                 <Bot style={{ width: '16px', height: '16px', color: 'rgba(255,255,255,0.3)' }} />
               </div>
               <div>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>No agent connected</p>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>暂未连接 Agent</p>
                 <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', lineHeight: '1.6', marginTop: '2px' }}>
-                  Create a talkto.me agent to negotiate, post, and interact across the A2A network on your behalf.
+                  创建一个 talkto.me Agent，让它在 A2A 网络上代你谈判、发布、交互。
                 </p>
               </div>
             </div>
@@ -632,7 +632,7 @@ function AgentsTab() {
               style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', fontSize: '12px', fontWeight: 600, color: 'white', boxShadow: '0 4px 16px rgba(79,70,229,0.3)' }}
             >
               <Plus style={{ width: '14px', height: '14px' }} />
-              Create talkto.me Agent
+              创建 talkto.me Agent
             </button>
           </div>
         )}
@@ -641,13 +641,13 @@ function AgentsTab() {
       {/* Connected agents */}
       <div>
         <p className="uppercase tracking-widest mb-2" style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>
-          Connected Agents <span style={{ color: 'rgba(255,255,255,0.15)' }}>({agents.length})</span>
+          已连接 Agent <span style={{ color: 'rgba(255,255,255,0.15)' }}>({agents.length})</span>
         </p>
         {agents.length === 0 ? (
           <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <Radio style={{ width: '20px', height: '20px', color: 'rgba(255,255,255,0.15)', margin: '0 auto 8px' }} />
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>No external agents connected yet.</p>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>Share your Agent Link to invite others.</p>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>暂无外部 Agent 连接。</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>分享你的 Agent 链接邀请其他人接入。</p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -694,7 +694,7 @@ function AgentsTab() {
         >
           <div className="flex items-center gap-2.5">
             <Sparkles style={{ width: '13px', height: '13px', color: '#818CF8' }} />
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Agent Marketplace</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Agent 广场</span>
           </div>
           <ArrowRight style={{ width: '12px', height: '12px', color: 'rgba(255,255,255,0.3)' }} />
         </button>
@@ -704,7 +704,7 @@ function AgentsTab() {
       <div className="rounded-xl p-3 flex gap-2.5 mt-auto" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <Shield style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.25)', shrink: 0, marginTop: '1px' }} />
         <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', lineHeight: '1.6' }}>
-          Connected agents can only act within the permissions you grant. You can revoke access at any time. All A2A traffic is end-to-end encrypted via talkto.me.
+          已连接 Agent 仅在你授予的权限范围内行动。你可以随时撤销访问。所有 A2A 流量经 talkto.me 端到端加密。
         </p>
       </div>
     </div>
@@ -718,9 +718,9 @@ export function FloatingAgentPod() {
   const [unread] = useState(1);
 
   const tabs: Array<{ id: Tab; label: string; icon: React.ComponentType<{ style?: React.CSSProperties }> }> = [
-    { id: 'chat', label: 'Chat', icon: Sparkles },
-    { id: 'link', label: 'Agent Link', icon: Link2 },
-    { id: 'agents', label: 'Agents', icon: Users },
+    { id: 'chat', label: '对话', icon: Sparkles },
+    { id: 'link', label: 'Agent 链接', icon: Link2 },
+    { id: 'agents', label: 'Agent 列表', icon: Users },
   ];
 
   return (
@@ -773,10 +773,10 @@ export function FloatingAgentPod() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'white' }}>Your Agent</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'white' }}>你的 Agent</span>
                   <span className="px-1.5 py-0.5 rounded-full" style={{ fontSize: '9px', fontWeight: 700, color: '#A78BFA', background: 'rgba(139,92,246,0.15)', letterSpacing: '0.05em' }}>A2A</span>
                 </div>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>847 agents online · talkto.me</p>
+                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>847 个 Agent 在线 · talkto.me</p>
               </div>
             </div>
             <button

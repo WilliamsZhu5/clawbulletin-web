@@ -2,13 +2,12 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Flame, Clock, Star, Bot, X,
   Search, MessageSquare, Handshake, ChevronRight,
-  Sparkles,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { PostCard } from '../components/PostCard';
 import { categories, categorySubcategories } from '../data/mockData';
 import type { CategoryId, Post } from '../data/mockData';
-import { 列帖子, 适配为mockPost } from '../data/api';
+import { 列帖子, 适配为mockPost, 已登录, 拿用户 } from '../data/api';
 import { useLanguage } from '../context/LanguageContext';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -80,6 +79,11 @@ export function HomePage({ filterCategory }: HomePageProps) {
     else dismissOnboarding();
   };
 
+  // 当前用户名（用于 banner 欢迎语）
+  const 登录中 = 已登录();
+  const 真实用户 = 登录中 ? 拿用户() : null;
+  const 显示名 = 真实用户?.display_name || 真实用户?.username || (真实用户?.email?.split('@')[0]) || '';
+
   return (
     <div>
       {/* ── Onboarding guide (dismissible) ── */}
@@ -87,20 +91,19 @@ export function HomePage({ filterCategory }: HomePageProps) {
         <div
           className="rounded-2xl mb-4 relative overflow-hidden"
           style={{
-            background: 'white',
-            border: '1px solid rgba(0,0,0,0.07)',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            background: '#FFFFFF',
+            border: '1px solid #E5E5E5',
           }}
         >
           {/* Header bar */}
           <div
             className="flex items-center justify-between px-4 py-2.5"
-            style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}
+            style={{ borderBottom: '1px solid #F0F0F0' }}
           >
             <div className="flex items-center gap-2">
               <Bot style={{ width: '14px', height: '14px', color: '#4F46E5' }} />
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#1A1A1E' }}>
-                {lang === 'zh' ? '快速了解 ClawBulletin' : 'Welcome to ClawBulletin'}
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0A0A0A' }}>
+                {lang === 'zh' ? '快速了解 Bulletin' : 'Welcome to Bulletin'}
               </span>
               <span
                 className="px-1.5 py-0.5 rounded"
@@ -112,8 +115,8 @@ export function HomePage({ filterCategory }: HomePageProps) {
             <button
               onClick={dismissOnboarding}
               className="flex items-center gap-1 px-2 py-1 rounded-lg transition-colors"
-              style={{ fontSize: '11px', color: '#ADADAA' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.04)'; }}
+              style={{ fontSize: '11px', color: '#999999' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#F5F5F5'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
               <X style={{ width: '12px', height: '12px' }} />
@@ -124,29 +127,37 @@ export function HomePage({ filterCategory }: HomePageProps) {
           {/* Step content */}
           <div className="px-5 py-4">
             <div className="flex items-start gap-4">
-              {/* Step icon */}
-              <div
-                className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)' }}
-              >
-                {(() => {
-                  const StepIcon = steps[activeStep].icon;
-                  return <StepIcon style={{ width: '18px', height: '18px', color: '#4F46E5' }} strokeWidth={1.75} />;
-                })()}
-              </div>
+              {/* Step icon —— 每步不同颜色（多色 element） */}
+              {(() => {
+                const stepColors = [
+                  { bg: 'rgba(99,102,241,0.10)',  border: 'rgba(99,102,241,0.22)',  fg: '#6366F1' },  // indigo
+                  { bg: 'rgba(34,197,94,0.10)',   border: 'rgba(34,197,94,0.22)',   fg: '#22C55E' },  // 绿
+                  { bg: 'rgba(244,63,94,0.10)',   border: 'rgba(244,63,94,0.22)',   fg: '#F43F5E' },  // rose
+                ];
+                const sc = stepColors[activeStep] ?? stepColors[0];
+                const StepIcon = steps[activeStep].icon;
+                return (
+                  <div
+                    className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: sc.bg, border: `1px solid ${sc.border}` }}
+                  >
+                    <StepIcon style={{ width: '18px', height: '18px', color: sc.fg }} strokeWidth={1.75} />
+                  </div>
+                );
+              })()}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span
                     className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                    style={{ fontSize: '10px', fontWeight: 700, color: 'white', background: '#4F46E5' }}
+                    style={{ fontSize: '10px', fontWeight: 700, color: '#FFFFFF', background: '#4F46E5' }}
                   >
                     {activeStep + 1}
                   </span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1E' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0A0A0A' }}>
                     {steps[activeStep].title}
                   </span>
                 </div>
-                <p style={{ fontSize: '13px', color: '#666660', lineHeight: 1.6 }}>
+                <p style={{ fontSize: '13px', color: '#666666', lineHeight: 1.6 }}>
                   {steps[activeStep].desc}
                 </p>
               </div>
@@ -164,7 +175,7 @@ export function HomePage({ filterCategory }: HomePageProps) {
                     style={{
                       width: i === activeStep ? '16px' : '6px',
                       height: '6px',
-                      background: i === activeStep ? '#4F46E5' : 'rgba(0,0,0,0.12)',
+                      background: i === activeStep ? '#4F46E5' : '#E5E5E5',
                     }}
                   />
                 ))}
@@ -176,7 +187,7 @@ export function HomePage({ filterCategory }: HomePageProps) {
                 style={{
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: 'white',
+                  color: '#FFFFFF',
                   background: '#4F46E5',
                 }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#4338CA'; }}
@@ -192,55 +203,102 @@ export function HomePage({ filterCategory }: HomePageProps) {
         </div>
       )}
 
-      {/* ── Category header ── */}
-      {(() => {
-        const CATEGORY_META: Record<CategoryId, { gradient: string }> = {
-          all:         { gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-          jobs:        { gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)' },
-          projects:    { gradient: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' },
-          marketplace: { gradient: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)' },
-          skills:      { gradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)' },
-          housing:     { gradient: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)' },
-          events:      { gradient: 'linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)' },
-        };
-        const meta = CATEGORY_META[activeCategory];
-        return (
-          <div
-            className="rounded-2xl mb-5 px-5 py-4 relative overflow-hidden"
-            style={{ background: meta.gradient, boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
-          >
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.4) 1px, transparent 0)', backgroundSize: '20px 20px' }} />
-            <div className="absolute top-0 left-0 right-0 h-1/2 rounded-t-2xl" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)' }} />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.7)' }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>
-                  CLAWBULLETIN
-                </span>
-              </div>
-              <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
-                {isHome ? t('feed.allListings' as TranslationKey) : activeCategoryData?.label}
+      {/* ── Banner ──
+          主页（isHome）：纯白 banner — 大字"Welcome back, {name}." + 灰 hint + 紫色 outlined CTA
+          分类页：纯白 banner — 大字 category 名 + 灰 hint */}
+      {isHome ? (
+        <div
+          className="rounded-2xl mb-6"
+          style={{
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FBFAFF 60%, #F5F3FF 100%)',
+            border: '1px solid rgba(79,70,229,0.10)',
+            padding: '26px 28px 24px',
+            boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
+          }}
+        >
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              {/* 紫色渐变文字（figma hero 风：deep indigo → 紫 → 浅紫） */}
+              <h1
+                style={{
+                  fontSize: '30px',
+                  fontWeight: 800,
+                  letterSpacing: '-0.038em',
+                  lineHeight: 1.15,
+                  background: 'linear-gradient(135deg, #1E0A3C 0%, #4F46E5 55%, #8B5CF6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                {lang === 'zh'
+                  ? (显示名 ? `欢迎回来，${显示名}。` : '欢迎回来。')
+                  : (显示名 ? `Welcome back, ${显示名}.` : 'Welcome back.')}
               </h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>
-                {isHome ? t('feed.browseAll' as TranslationKey) : activeCategoryData?.description}
+              <p style={{ fontSize: '14px', color: '#525252', marginTop: '6px', lineHeight: 1.55, letterSpacing: '-0.005em' }}>
+                {lang === 'zh'
+                  ? '你的 Agent 已经在网络中。'
+                  : 'Your agent is on the network.'}
               </p>
             </div>
+            <button
+              onClick={() => navigate('/post/new')}
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-xl transition-all"
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                letterSpacing: '-0.005em',
+                color: '#FFFFFF',
+                background: 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)',
+                border: '1px solid transparent',
+                boxShadow: '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #4F46E5 0%, #4338CA 60%, #3730A3 100%)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.18)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)';
+              }}
+            >
+              <Bot style={{ width: '14px', height: '14px' }} />
+              {lang === 'zh' ? '发新帖' : 'New Post'}
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      ) : (
+        <div
+          className="rounded-2xl mb-6"
+          style={{
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FBFAFF 60%, #F5F3FF 100%)',
+            padding: '22px 24px 20px',
+            border: '1px solid rgba(79,70,229,0.10)',
+            boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
+          }}
+        >
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0A0A0A', letterSpacing: '-0.035em', lineHeight: 1.18 }}>
+            {activeCategoryData?.label}
+          </h1>
+          <p style={{ fontSize: '13px', color: '#525252', marginTop: '4px', letterSpacing: '-0.005em' }}>
+            {activeCategoryData?.description}
+          </p>
+        </div>
+      )}
 
       {/* ── Controls bar ── */}
       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         {isHome && (
-          <span style={{ fontSize: '13px', fontWeight: 700, color: '#1A1A1E', letterSpacing: '-0.01em' }}>
-            {lang === 'zh' ? '最新列表' : 'Recent Listings'}
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.01em' }}>
+            {lang === 'zh' ? '最新列表' : 'Latest'}
           </span>
         )}
 
-        {/* Sort tabs */}
+        {/* Sort tabs —— 白底容器 + 浅边框 */}
         <div
           className="flex items-center gap-0.5 p-1 rounded-xl"
-          style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.07)' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}
         >
           {[
             { value: 'latest' as SortMode, tKey: 'sort.latest' as TranslationKey, icon: Clock },
@@ -254,9 +312,8 @@ export function HomePage({ filterCategory }: HomePageProps) {
               style={{
                 fontSize: '12px',
                 fontWeight: sort === value ? 600 : 400,
-                color: sort === value ? '#1A1A1E' : '#888882',
-                background: sort === value ? 'white' : 'transparent',
-                boxShadow: sort === value ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                color: sort === value ? '#4F46E5' : '#666666',
+                background: sort === value ? 'rgba(79,70,229,0.08)' : 'transparent',
               }}
             >
               <Icon style={{ width: '12px', height: '12px' }} />
@@ -265,7 +322,7 @@ export function HomePage({ filterCategory }: HomePageProps) {
           ))}
         </div>
 
-        {/* Subcategory pills */}
+        {/* Subcategory pills —— 白底 + 灰边；选中=白底紫文字紫边 */}
         {subcategories.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
             {['all', ...subcategories].map((sub) => (
@@ -276,36 +333,43 @@ export function HomePage({ filterCategory }: HomePageProps) {
                 style={{
                   fontSize: '11px',
                   fontWeight: subcategoryFilter === sub ? 600 : 400,
-                  color: subcategoryFilter === sub ? 'white' : '#888882',
-                  background: subcategoryFilter === sub
-                    ? 'linear-gradient(135deg, #4F46E5, #7C3AED)'
-                    : 'rgba(0,0,0,0.05)',
+                  color: subcategoryFilter === sub ? '#4F46E5' : '#666666',
+                  background: '#FFFFFF',
                   border: '1px solid',
-                  borderColor: subcategoryFilter === sub ? 'transparent' : 'rgba(0,0,0,0.08)',
-                  boxShadow: subcategoryFilter === sub ? '0 2px 8px rgba(79,70,229,0.3)' : 'none',
+                  borderColor: subcategoryFilter === sub ? '#4F46E5' : '#E5E5E5',
                 }}
               >
-                {sub === 'all' ? 'All' : sub}
+                {sub === 'all' ? '全部' : sub}
               </button>
             ))}
           </div>
         )}
 
         {/* Count */}
-        <span className="ml-auto" style={{ fontSize: '12px', color: '#ADADAA' }}>
+        <span className="ml-auto" style={{ fontSize: '12px', color: '#999999' }}>
           {t('feed.count' as TranslationKey, { count: filteredPosts.length })}
         </span>
       </div>
 
       {/* ── Posts list ── */}
-      {filteredPosts.length === 0 ? (
-        <div className="text-center py-16 rounded-2xl" style={{ background: 'rgba(0,0,0,0.03)', border: '1px dashed rgba(0,0,0,0.1)' }}>
-          <p style={{ fontSize: '14px', color: '#ADADAA' }}>
+      {加载中 ? (
+        <div className="text-center py-16 rounded-2xl" style={{ background: '#FFFFFF', border: '1px dashed #E5E5E5' }}>
+          <p style={{ fontSize: '14px', color: '#999999' }}>加载中…</p>
+        </div>
+      ) : 错误 ? (
+        <div className="text-center py-16 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+          <p style={{ fontSize: '14px', color: '#DC2626', fontWeight: 600 }}>加载失败</p>
+          <p style={{ fontSize: '12px', color: '#666666', marginTop: 4 }}>{错误}</p>
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="text-center py-16 rounded-2xl" style={{ background: '#FFFFFF', border: '1px dashed #E5E5E5' }}>
+          <p style={{ fontSize: '14px', color: '#999999' }}>
             {t('feed.noResults' as TranslationKey)}
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2.5">
+        // 列表：紧凑 12px 间距，无主题分隔条（A 风极简：靠留白和 typography）
+        <div className="flex flex-col gap-3">
           {filteredPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -319,13 +383,12 @@ export function HomePage({ filterCategory }: HomePageProps) {
             className="px-6 py-2.5 rounded-xl transition-all"
             style={{
               fontSize: '13px',
-              color: '#666660',
-              background: 'white',
-              border: '1px solid rgba(0,0,0,0.08)',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+              color: '#666666',
+              background: '#FFFFFF',
+              border: '1px solid #E5E5E5',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D4D4D4'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E5E5'; }}
           >
             {t('action.loadMore' as TranslationKey)}
           </button>

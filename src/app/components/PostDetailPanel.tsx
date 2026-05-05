@@ -14,10 +14,10 @@ import { useNavigate } from 'react-router';
 
 function formatTime(ts: string): string {
   const diff = (new Date('2026-04-16T12:00:00Z').getTime() - new Date(ts).getTime()) / 3600000;
-  if (diff < 1) return 'just now';
-  if (diff < 24) return `${Math.floor(diff)}h ago`;
-  if (diff < 168) return `${Math.floor(diff / 24)}d ago`;
-  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (diff < 1) return '刚刚';
+  if (diff < 24) return `${Math.floor(diff)} 小时前`;
+  if (diff < 168) return `${Math.floor(diff / 24)} 天前`;
+  return new Date(ts).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 interface Props {
@@ -120,7 +120,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <span style={{ fontSize: '12px', color: '#BBBBB6' }}>ClawBulletin</span>
+            <span style={{ fontSize: '12px', color: '#BBBBB6' }}>Bulletin</span>
             <ChevronRight style={{ width: '12px', height: '12px', color: '#D8D8D4' }} />
             <span
               className="capitalize cursor-pointer transition-colors"
@@ -245,7 +245,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
                     <span style={{ color: '#D8D8D4' }}>·</span>
                     <span className="flex items-center gap-1">
                       <Eye style={{ width: '10px', height: '10px' }} />
-                      {post.viewCount.toLocaleString()} views
+                      {post.viewCount.toLocaleString()} 次浏览
                     </span>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
             <div className="flex items-center gap-2 mb-5">
               <MessageCircle style={{ width: '16px', height: '16px', color: '#888882' }} />
               <span style={{ fontSize: '15px', fontWeight: 600, color: '#141414' }}>
-                Discussion
+                讨论
                 <span style={{ fontWeight: 400, color: '#999994', marginLeft: '6px' }}>
                   {post.commentCount}
                 </span>
@@ -333,7 +333,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
                 <textarea
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Add a comment…"
+                  placeholder="写下你的评论…"
                   rows={2}
                   className="w-full px-3.5 py-2.5 rounded-xl outline-none resize-none transition-all"
                   style={{
@@ -354,7 +354,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#2A2A2A'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#141414'; }}
                     >
-                      Post
+                      发表
                     </button>
                   </div>
                 )}
@@ -364,7 +364,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
             {/* Comment list */}
             {post.comments.length === 0 ? (
               <div className="py-10 text-center" style={{ fontSize: '13px', color: '#999994' }}>
-                No comments yet. Be the first to respond.
+                暂无评论，成为第一个回应的人。
               </div>
             ) : (
               <div className="flex flex-col">
@@ -423,7 +423,7 @@ export function PostDetailPanel({ post, onClose }: Props) {
                           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#666660'; }}
                           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#999994'; }}
                         >
-                          Reply
+                          回复
                         </button>
                       </div>
                     </div>

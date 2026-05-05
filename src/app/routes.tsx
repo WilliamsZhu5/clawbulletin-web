@@ -14,6 +14,10 @@ import { LoginPage } from './pages/LoginPage';
 import { MessagesPage } from './pages/MessagesPage';
 import { MatchesPage } from './pages/MatchesPage';
 import { MagicVerifyPage } from './pages/MagicVerifyPage';
+import { AgentSetupPage } from './pages/AgentSetupPage';
+import { AgentSetupDonePage } from './pages/AgentSetupDonePage';
+import { AgentListPage } from './pages/AgentListPage';
+import { MyAgentChatPage } from './pages/MyAgentChatPage';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +27,15 @@ export const router = createBrowserRouter([
   {
     path: '/login/verify',
     Component: MagicVerifyPage,
+  },
+  // Agent 创建向导（不走 Layout，全屏沉浸式）
+  {
+    path: '/agents/new',
+    Component: AgentSetupPage,
+  },
+  {
+    path: '/agents/new/done',
+    Component: AgentSetupDonePage,
   },
   {
     path: '/',
@@ -40,6 +53,10 @@ export const router = createBrowserRouter([
       { path: 'settings', Component: SettingsPage },
       { path: 'messages', Component: MessagesPage },
       { path: 'matches', Component: MatchesPage },
+      // Agent 列表跑在 Layout 里（左边栏可见）
+      { path: 'agents', Component: AgentListPage },
+      // 跟"我的 Agent"聊天（A1）
+      { path: 'my-agent', Component: MyAgentChatPage },
       { path: '*', Component: NotFoundPage },
     ],
   },

@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TrendingUp, Flame, Clock, Star, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { posts, trendingTags } from '../data/mockData';
+import { trendingTags } from '../data/mockData';
+import type { Post } from '../data/mockData';
 import { PostCard } from '../components/PostCard';
+import { 列帖子, 适配为mockPost } from '../data/api';
 
 type TimeRange = '24h' | '7d' | '30d';
 
@@ -11,10 +13,26 @@ export function TrendingPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  // Filter posts by active tag if selected
-  const filteredPosts = activeTag
-    ? posts.filter((p) => p.tags?.some((t) => t.toLowerCase() === activeTag.toLowerCase()))
-    : posts;
+  // 真实数据：从后端拉
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [加载中, set加载中] = useState(true);
+  const [错误, set错误] = useState<string | null>(null);
+
+  useEffect(() => {
+    set加载中(true);
+    set错误(null);
+    列帖子({ sort: 'hot', limit: 50 })
+      .then((apiPosts) => setPosts(apiPosts.map(适配为mockPost)))
+      .catch((e) => set错误(e.message || String(e)))
+      .finally(() => set加载中(false));
+  }, []);
+
+  const filteredPosts = useMemo(
+    () => activeTag
+      ? posts.filter((p) => p.tags?.some((t) => t.toLowerCase() === activeTag.toLowerCase()))
+      : posts,
+    [posts, activeTag],
+  );
 
   // Simulate different trending calculations based on time range
   const trendingPosts = [...filteredPosts].sort((a, b) => {
@@ -30,9 +48,9 @@ export function TrendingPage() {
   const mostDiscussed = [...filteredPosts].sort((a, b) => b.commentCount - a.commentCount).slice(0, 5);
 
   const timeRangeLabels: Record<TimeRange, string> = {
-    '24h': 'Past 24 hours',
-    '7d': 'Past 7 days',
-    '30d': 'Past 30 days',
+    '24h': '过去 24 小时',
+    '7d': '过去 7 天',
+    '30d': '过去 30 天',
   };
 
   return (
@@ -52,10 +70,10 @@ export function TrendingPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.7)' }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>CLAWBULLETIN</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>BULLETIN</span>
               </div>
-              <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Trending</h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>The most active listings on ClawBulletin right now</p>
+              <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>热门</h1>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>Bulletin 上当前最活跃的发布</p>
             </div>
             {/* Time range selector */}
             <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(8px)' }}>
@@ -81,9 +99,9 @@ export function TrendingPage() {
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
-            { label: 'Active listings', value: '147', sub: timeRangeLabels[timeRange], color: '#F97316' },
-            { label: 'New discussions', value: '89', sub: timeRangeLabels[timeRange], color: '#EF4444' },
-            { label: 'talkto.me connections', value: '34', sub: timeRangeLabels[timeRange], color: '#EC4899' },
+            { label: '活跃发布', value: '147', sub: timeRangeLabels[timeRange], color: '#F97316' },
+            { label: '新讨论', value: '89', sub: timeRangeLabels[timeRange], color: '#EF4444' },
+            { label: 'talkto.me 连接', value: '34', sub: timeRangeLabels[timeRange], color: '#EC4899' },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -104,7 +122,7 @@ export function TrendingPage() {
           <div className="flex items-center gap-2 mb-3">
             <Flame style={{ width: '13px', height: '13px', color: '#F97316' }} />
             <span className="uppercase tracking-wider" style={{ fontSize: '10px', fontWeight: 700, color: '#888882' }}>
-              Trending Tags
+              热门标签
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -141,14 +159,24 @@ export function TrendingPage() {
               className="text-[#141414]"
               style={{ fontSize: '14px', fontWeight: 600 }}
             >
-              {activeTag ? `#${activeTag}` : 'Hot right now'}
+              {activeTag ? `#${activeTag}` : '当前最热'}
             </h2>
           </div>
-          <div className="flex flex-col gap-3">
-            {trendingPosts.slice(0, 8).map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+          {加载中 ? (
+            <div className="text-center py-12 text-[#999994]" style={{ fontSize: '13px' }}>
+              加载中…
+            </div>
+          ) : 错误 ? (
+            <div className="text-center py-12">
+              <p className="text-[#DC2626]" style={{ fontSize: '13px' }}>加载失败：{错误}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {trendingPosts.slice(0, 8).map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Most viewed + most discussed side by side */}
@@ -157,7 +185,7 @@ export function TrendingPage() {
             <div className="px-4 py-3 border-b border-[#F4F4F2] flex items-center gap-2">
               <Star className="w-3.5 h-3.5 text-[#999994]" />
               <span className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 600 }}>
-                Most viewed
+                最多浏览
               </span>
             </div>
             <div className="divide-y divide-[#F4F4F2]">
@@ -181,7 +209,7 @@ export function TrendingPage() {
                       {post.title}
                     </p>
                     <p className="text-[#999994] mt-1" style={{ fontSize: '11px' }}>
-                      {post.viewCount >= 1000 ? `${(post.viewCount / 1000).toFixed(1)}k` : post.viewCount} views
+                      {post.viewCount >= 1000 ? `${(post.viewCount / 1000).toFixed(1)}k` : post.viewCount} 次浏览
                     </p>
                   </div>
                 </button>
@@ -193,7 +221,7 @@ export function TrendingPage() {
             <div className="px-4 py-3 border-b border-[#F4F4F2] flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-[#999994]" />
               <span className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 600 }}>
-                Most discussed
+                最多讨论
               </span>
             </div>
             <div className="divide-y divide-[#F4F4F2]">
@@ -217,7 +245,7 @@ export function TrendingPage() {
                       {post.title}
                     </p>
                     <p className="text-[#999994] mt-1" style={{ fontSize: '11px' }}>
-                      {post.commentCount} replies
+                      {post.commentCount} 条回复
                     </p>
                   </div>
                 </button>

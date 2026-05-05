@@ -36,129 +36,129 @@ function agentRespond(query: string): { text: string; results?: ResultCard[]; ch
   // Jobs intent
   if (q.includes('job') || q.includes('work') || q.includes('hire') || q.includes('engineer') ||
       q.includes('engineer') || q.includes('rust') || q.includes('frontend') || q.includes('backend') ||
-      q.includes('developer') || q.includes('salary') || q.includes('remote')) {
+      q.includes('developer') || q.includes('salary') || q.includes('remote') || q.includes('职位') || q.includes('工作')) {
     const matched = posts.filter(p => p.category === 'jobs');
     return {
-      text: `Found ${matched.length} job listings that match. Here's what stands out based on your query:`,
+      text: `找到 ${matched.length} 个相关职位。根据你的描述，这几条最值得关注：`,
       results: matched.slice(0, 3).map((p, i) => ({
         post: p,
         reason: i === 0
-          ? 'Strong match — senior role with equity, well-funded team'
+          ? '高度匹配 —— 高级岗位，含期权，团队资金充裕'
           : i === 1
-          ? 'Open-source opportunity with real ownership'
-          : 'High activity, 12 people reached out this week',
+          ? '开源项目，能拿到真正的所有权'
+          : '本周活跃度高，已有 12 人主动联系',
       })),
-      chips: ['Show all jobs', 'Remote only', 'Filter by salary', 'Sort by newest'],
+      chips: ['查看全部职位', '仅看远程', '按薪资筛选', '按最新排序'],
     };
   }
 
   // Housing intent
   if (q.includes('apartment') || q.includes('room') || q.includes('rent') ||
       q.includes('housing') || q.includes('sublease') || q.includes('studio') ||
-      q.includes('place') || q.includes('live') || q.includes('hayes')) {
+      q.includes('place') || q.includes('live') || q.includes('hayes') || q.includes('租房') || q.includes('房')) {
     const matched = posts.filter(p => p.category === 'housing');
     return {
-      text: `I found ${matched.length} housing listing${matched.length !== 1 ? 's' : ''} right now. Let me surface the most relevant:`,
+      text: `当前有 ${matched.length} 条租房相关发布。下面是最相关的几条：`,
       results: matched.slice(0, 2).map((p, i) => ({
         post: p,
         reason: i === 0
-          ? 'Below market rate, available immediately'
-          : 'Flexible move-in date, utilities negotiable',
+          ? '价格低于市场价，立即可入住'
+          : '入住日期灵活，水电费可商议',
       })),
-      chips: ['Under $2k/mo', 'Include utilities', 'Pet friendly', 'Short-term ok'],
+      chips: ['月租 2k 以下', '含水电', '可养宠物', '可短租'],
     };
   }
 
   // Marketplace intent
   if (q.includes('buy') || q.includes('sell') || q.includes('macbook') || q.includes('laptop') ||
       q.includes('secondhand') || q.includes('used') || q.includes('market') || q.includes('item') ||
-      q.includes('gear') || q.includes('camera') || q.includes('phone')) {
+      q.includes('gear') || q.includes('camera') || q.includes('phone') || q.includes('二手') || q.includes('买')) {
     const matched = posts.filter(p => p.category === 'marketplace');
     return {
-      text: `Browsing marketplace listings for you. These look like good fits:`,
+      text: `正在为你浏览二手市场。这几条比较合适：`,
       results: matched.slice(0, 3).map((p, i) => ({
         post: p,
         reason: i === 0
-          ? 'Price well below retail, includes warranty'
+          ? '价格远低于零售价，含保修'
           : i === 1
-          ? 'Local pickup, seller has good track record'
-          : 'Listed 2 days ago, no offers yet',
+          ? '本地自取，卖家信誉良好'
+          : '两天前发布，暂无报价',
       })),
-      chips: ['Under $500', 'Under $2k', 'Local pickup only', 'Electronics'],
+      chips: ['500 以下', '2k 以下', '仅本地自取', '电子产品'],
     };
   }
 
   // Projects intent
   if (q.includes('project') || q.includes('co-founder') || q.includes('startup') ||
-      q.includes('build') || q.includes('idea') || q.includes('collab') || q.includes('side')) {
+      q.includes('build') || q.includes('idea') || q.includes('collab') || q.includes('side') || q.includes('项目') || q.includes('合伙')) {
     const matched = posts.filter(p => p.category === 'projects');
     return {
-      text: `Here are active projects looking for collaborators:`,
+      text: `这些是正在招募合作者的活跃项目：`,
       results: matched.slice(0, 3).map((p, i) => ({
         post: p,
         reason: i === 0
-          ? 'Early stage, co-founder equity available'
+          ? '早期阶段，提供联合创始人股权'
           : i === 1
-          ? 'Strong technical foundation, legal pilots lined up'
-          : 'Well-scoped side project, 10h/week commitment',
+          ? '技术基础扎实，已有法律试点'
+          : '范围明确的副业项目，每周约 10 小时',
       })),
-      chips: ['Co-founder roles', 'Open source', 'AI / ML', 'With funding'],
+      chips: ['联合创始人', '开源', 'AI / ML', '已融资'],
     };
   }
 
   // Skills intent
   if (q.includes('skill') || q.includes('learn') || q.includes('teach') ||
       q.includes('freelance') || q.includes('service') || q.includes('design') ||
-      q.includes('tutor') || q.includes('course')) {
+      q.includes('tutor') || q.includes('course') || q.includes('技能') || q.includes('学')) {
     const matched = posts.filter(p => p.category === 'skills');
     return {
-      text: `Found skill exchange and service listings that match:`,
+      text: `找到这些技能交换或服务发布：`,
       results: matched.slice(0, 2).map((p) => ({
         post: p,
-        reason: 'Available this week, open to skill exchange',
+        reason: '本周可对接，欢迎技能互换',
       })),
-      chips: ['Free exchange', 'Paid services', 'Design', 'Engineering'],
+      chips: ['免费互换', '付费服务', '设计', '工程'],
     };
   }
 
   // Events intent
   if (q.includes('event') || q.includes('meetup') || q.includes('workshop') ||
       q.includes('conference') || q.includes('network') || q.includes('talk') ||
-      q.includes('community') || q.includes('social')) {
+      q.includes('community') || q.includes('social') || q.includes('活动') || q.includes('聚会')) {
     const matched = posts.filter(p => p.category === 'events');
     return {
-      text: `Here are upcoming events and meetups:`,
+      text: `近期的活动与聚会：`,
       results: matched.slice(0, 2).map((p) => ({
         post: p,
-        reason: 'RSVP open, small group format',
+        reason: '可报名，小规模形式',
       })),
-      chips: ['This week', 'Free events', 'Technical talks', 'Founder meetups'],
+      chips: ['本周', '免费活动', '技术分享', '创始人聚会'],
     };
   }
 
   // Catch-all with broad suggestions
   return {
-    text: `I searched across all listings for "${query}". Here are the most relevant results I found:`,
+    text: `我已搜索全部发布查找"${query}"。最相关的几条结果：`,
     results: posts.slice(0, 3).map((p, i) => ({
       post: p,
       reason: i === 0
-        ? 'High relevance, recently active'
+        ? '相关度高，近期活跃'
         : i === 1
-        ? 'Matches some of your recent activity'
-        : 'Popular listing this week',
+        ? '与你最近的活动有关'
+        : '本周热门发布',
     })),
-    chips: ['Browse all jobs', 'Marketplace deals', 'Active projects', 'Housing listings'],
+    chips: ['浏览所有职位', '二手市场好货', '活跃项目', '租房发布'],
   };
 }
 
 /* ─── Suggested prompts ─────────────────────────────────────────── */
 
 const SUGGESTIONS = [
-  'Find me a remote frontend engineering job',
-  'Look for studio apartments under $1,500',
-  'Any interesting AI co-founder projects?',
-  'Show me good deals on used laptops',
-  'I want to find a Rust systems project to contribute to',
+  '帮我找一份远程前端工程师工作',
+  '找一下月租 1500 以下的开间',
+  '有没有有意思的 AI 联合创始人项目？',
+  '推荐性价比高的二手笔记本',
+  '想找一个可以贡献的 Rust 系统类项目',
 ];
 
 /* ─── Component ─────────────────────────────────────────────────── */
@@ -261,10 +261,10 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex-1 min-w-0">
             <div style={{ fontSize: '14px', fontWeight: 700, color: '#141414', letterSpacing: '-0.02em' }}>
-              Your Agent
+              你的 Agent
             </div>
             <div style={{ fontSize: '11px', color: '#ADADAA' }}>
-              Ask anything · searches all listings in real time
+              问任何事 · 实时搜索所有发布
             </div>
           </div>
           <div
@@ -272,7 +272,7 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
             style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.15)' }}
           >
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#22C55E', boxShadow: '0 0 5px #22C55E' }} />
-            <span style={{ fontSize: '10px', fontWeight: 600, color: '#16A34A' }}>Online</span>
+            <span style={{ fontSize: '10px', fontWeight: 600, color: '#16A34A' }}>在线</span>
           </div>
           <button
             onClick={onClose}
@@ -301,10 +301,10 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
                   <Sparkles style={{ width: '22px', height: '22px', color: '#6366F1' }} />
                 </div>
                 <p style={{ fontSize: '15px', fontWeight: 600, color: '#141414', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-                  What are you looking for?
+                  你在找什么？
                 </p>
                 <p style={{ fontSize: '13px', color: '#ADADAA', lineHeight: '1.6' }}>
-                  Describe what you need in plain language — jobs, housing, gear, projects, anything.
+                  用自然语言描述你的需求 —— 工作、租房、物品、项目，任何事。
                 </p>
               </div>
 
@@ -364,7 +364,7 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
                         >
                           <Bot style={{ width: '10px', height: '10px', color: 'white' }} />
                         </div>
-                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#818CF8' }}>Agent</span>
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#818CF8' }}>Agent 回复</span>
                       </div>
 
                       {/* Text */}
@@ -531,7 +531,7 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
                   handleSubmit();
                 }
               }}
-              placeholder="Describe what you're looking for…"
+              placeholder="描述你在找什么…"
               className="flex-1 bg-transparent outline-none resize-none"
               style={{
                 fontSize: '14px',
@@ -557,7 +557,7 @@ export function AgentDialog({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           <p style={{ fontSize: '10px', color: '#C4C4BF', marginTop: '8px', textAlign: 'center' }}>
-            Press Enter to send · Shift+Enter for new line · Esc to close
+            回车发送 · Shift+回车换行 · Esc 关闭
           </p>
         </div>
       </div>

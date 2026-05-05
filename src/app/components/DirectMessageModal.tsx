@@ -12,7 +12,7 @@ interface ChatMessage {
 }
 
 function now(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 }
 
 function seedConversation(post: Post): ChatMessage[] {
@@ -21,22 +21,22 @@ function seedConversation(post: Post): ChatMessage[] {
     {
       id: 's0',
       side: 'them',
-      text: `Hi — thanks for reaching out about "${post.title}". What would you like to know?`,
-      timestamp: ts('Yesterday 4:12 PM'),
+      text: `你好 —— 谢谢你对"${post.title}"感兴趣。想了解什么？`,
+      timestamp: ts('昨天 16:12'),
       sender: 'user',
     },
     {
       id: 's1',
       side: 'me',
-      text: `Hello. I'm interested and had a few questions before committing. Can we go over the key details?`,
-      timestamp: ts('Yesterday 4:35 PM'),
+      text: `你好。我有兴趣，决定前想确认几个问题。能否先过一下关键信息？`,
+      timestamp: ts('昨天 16:35'),
       sender: 'agent',
     },
     {
       id: 's2',
       side: 'them',
-      text: 'Of course. Go ahead.',
-      timestamp: ts('Yesterday 4:40 PM'),
+      text: '当然，请说。',
+      timestamp: ts('昨天 16:40'),
       sender: 'user',
     },
   ];
@@ -44,11 +44,11 @@ function seedConversation(post: Post): ChatMessage[] {
 
 // Simulate the other party replying after a short delay
 const autoReplies: string[] = [
-  'That makes sense. Let me check on that and get back to you.',
-  'Sure, I can work with that. What timeline are you thinking?',
-  'Good point — I hadn\'t considered that. Let me think about it.',
-  'Happy to discuss further. When are you available for a quick call?',
-  'Agreed. I think we can find common ground here.',
+  '有道理，我看一下再回你。',
+  '可以，时间安排我能配合，你有什么计划？',
+  '说得不错——我之前没从这个角度考虑过，我想想。',
+  '可以进一步聊聊。你什么时候方便通个电话？',
+  '同意，我想我们能找到一致的方案。',
 ];
 
 interface Props {
@@ -82,25 +82,25 @@ export function DirectMessageModal({ post, onClose }: Props) {
       setAgentTyping(false);
       const agentResponses: Record<string, string[]> = {
         marketplace: [
-          'Understood. My client would like to confirm the item condition and whether local pickup is preferred before we move forward.',
-          'Could you clarify the payment terms? My client is ready to proceed quickly if those are confirmed.',
+          '了解。在推进前，我的委托人想确认下物品成色和是否优先本地自取。',
+          '请澄清下付款方式？这些确认后我的委托人可以快速推进。',
         ],
         jobs: [
-          'My client has reviewed the listing carefully. Before scheduling a call, could you share the current team structure and any technical stack details?',
-          'Noted. My client is open to the on-site requirement. What does the interview process look like from here?',
+          '我的委托人已仔细阅读了招聘信息。约电话前，能否介绍下当前团队结构和技术栈？',
+          '已记下。我的委托人接受现场办公的要求。后续面试流程是怎样的？',
         ],
         housing: [
-          'My client would like to confirm: is the listed move-in date flexible by a week? And are any utilities included?',
-          'Understood. My client is prepared to move forward — shall we schedule a viewing?',
+          '我的委托人想确认：挂牌的入住日期可否前后浮动一周？是否含水电？',
+          '了解。我的委托人准备推进——是否方便约个看房？',
         ],
         projects: [
-          'My client is genuinely interested. Before going further, can you share what the equity structure looks like for a technical collaborator?',
-          'That aligns well with my client\'s availability. They can commit 10+ hours per week. What\'s the next step?',
+          '我的委托人确实有兴趣。继续之前，能否分享下技术合作者的股权结构？',
+          '与我委托人的档期匹配，他们每周可投入 10 小时以上。下一步如何安排？',
         ],
       };
       const pool = agentResponses[post.category] ?? [
-        'My client has reviewed your message and would like to proceed. What information can you share next?',
-        'Understood. My client is interested — what would you need from them to move this forward?',
+        '我的委托人已查看你的消息，想推进。下一步能分享哪些信息？',
+        '了解。我的委托人有意，从他们那边需要什么来推进？',
       ];
       const text = pool[Math.floor(Math.random() * pool.length)];
       const msg: ChatMessage = {
@@ -189,7 +189,7 @@ export function DirectMessageModal({ post, onClose }: Props) {
                 )}
               </div>
               <p className="truncate" style={{ fontSize: '11px', color: '#999994', marginTop: '1px' }}>
-                re: {post.title.length > 52 ? post.title.slice(0, 52) + '…' : post.title}
+                关于：{post.title.length > 52 ? post.title.slice(0, 52) + '…' : post.title}
               </p>
             </div>
           </div>
@@ -201,7 +201,7 @@ export function DirectMessageModal({ post, onClose }: Props) {
               style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.18)' }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#16A34A' }}>Live</span>
+              <span style={{ fontSize: '10px', fontWeight: 600, color: '#16A34A' }}>实时</span>
             </div>
             <button
               onClick={onClose}
@@ -241,12 +241,12 @@ export function DirectMessageModal({ post, onClose }: Props) {
                       {msg.sender === 'agent' ? (
                         <>
                           <Bot style={{ width: '10px', height: '10px', color: '#818CF8' }} />
-                          <span style={{ fontSize: '10px', color: '#999994' }}>via Agent</span>
+                          <span style={{ fontSize: '10px', color: '#999994' }}>由 Agent 发送</span>
                         </>
                       ) : (
                         <>
                           <User style={{ width: '10px', height: '10px', color: '#888882' }} />
-                          <span style={{ fontSize: '10px', color: '#999994' }}>You</span>
+                          <span style={{ fontSize: '10px', color: '#999994' }}>你</span>
                         </>
                       )}
                     </div>
@@ -294,7 +294,7 @@ export function DirectMessageModal({ post, onClose }: Props) {
               <div className="flex flex-col items-end max-w-[75%]">
                 <div className="flex items-center gap-1 mb-1">
                   <Bot style={{ width: '10px', height: '10px', color: '#818CF8' }} />
-                  <span style={{ fontSize: '10px', color: '#999994' }}>Agent composing…</span>
+                  <span style={{ fontSize: '10px', color: '#999994' }}>Agent 正在输入…</span>
                 </div>
                 <div
                   className="px-3.5 py-2.5 rounded-2xl rounded-br-[4px] flex items-center gap-1.5"
@@ -376,7 +376,7 @@ export function DirectMessageModal({ post, onClose }: Props) {
                 >
                   <Radio style={{ width: '8px', height: '8px', color: '#6366F1' }} />
                   <span style={{ fontSize: '9px', fontWeight: 700, color: '#6366F1', letterSpacing: '0.04em' }}>
-                    ACTIVE
+                    托管中
                   </span>
                 </div>
               )}
@@ -413,8 +413,8 @@ export function DirectMessageModal({ post, onClose }: Props) {
           <div className="px-4 pt-2.5 pb-0">
             <p style={{ fontSize: '10px', color: '#BBBBB6' }}>
               {agentManaged
-                ? 'Agent is managing this conversation. You can still type to insert yourself anytime.'
-                : 'Manual mode — your messages go directly without agent involvement.'}
+                ? 'Agent 托管中，你随时可以直接输入接管对话。'
+                : '手动模式 —— 你的消息直接发送，不经 Agent。'}
             </p>
           </div>
 
@@ -445,8 +445,8 @@ export function DirectMessageModal({ post, onClose }: Props) {
                 }}
                 placeholder={
                   agentManaged
-                    ? `Insert yourself into the conversation…`
-                    : `Message ${post.author.displayName}…`
+                    ? `随时接管对话…`
+                    : `发消息给 ${post.author.displayName}…`
                 }
                 rows={1}
                 className="flex-1 bg-transparent outline-none resize-none"
@@ -464,7 +464,7 @@ export function DirectMessageModal({ post, onClose }: Props) {
                     style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.14)' }}
                   >
                     <Sparkles style={{ width: '9px', height: '9px', color: '#6366F1' }} />
-                    <span style={{ fontSize: '9px', fontWeight: 600, color: '#6366F1' }}>Override</span>
+                    <span style={{ fontSize: '9px', fontWeight: 600, color: '#6366F1' }}>接管</span>
                   </div>
                 )}
                 <button

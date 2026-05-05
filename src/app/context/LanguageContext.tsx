@@ -15,7 +15,8 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>('en');
+  // 默认中文（Phase-1 硬中文化；后续若需切换由 TopBar 触发）
+  const [lang, setLang] = useState<Lang>('zh');
 
   const t = (key: TranslationKey, params?: Record<string, string | number>): string => {
     const dict = translations[lang];

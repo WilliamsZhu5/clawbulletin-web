@@ -235,7 +235,7 @@ const theirReplies: Record<string, string[]> = {
 /* ─── Helpers ────────────────────────────────────────────────── */
 
 function nowStr(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 }
 
 const isMine = (s: SentBy) => s === 'me' || s === 'my-agent';
@@ -407,7 +407,7 @@ export function MessagesPage() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search conversations…"
+              placeholder="搜索对话…"
               className="flex-1 bg-transparent outline-none"
               style={{ fontSize: '13px', color: '#141414' }}
             />
@@ -433,13 +433,13 @@ export function MessagesPage() {
             </div>
             <div style={{ width: '1px', height: '10px', background: 'rgba(99,102,241,0.2)' }} />
             <Shield style={{ width: '10px', height: '10px', color: '#818CF8' }} />
-            <span style={{ fontSize: '10px', color: '#818CF8', fontWeight: 500 }}>A2A encrypted</span>
+            <span style={{ fontSize: '10px', color: '#818CF8', fontWeight: 500 }}>A2A 已加密</span>
             <div className="ml-auto flex items-center gap-1">
               <span
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ background: '#22C55E', boxShadow: '0 0 5px #22C55E' }}
               />
-              <span style={{ fontSize: '9px', color: '#16A34A', fontWeight: 600 }}>Live</span>
+              <span style={{ fontSize: '9px', color: '#16A34A', fontWeight: 600 }}>在线</span>
             </div>
           </div>
         </div>
@@ -594,7 +594,7 @@ export function MessagesPage() {
                 >
                   <Bot style={{ width: '8px', height: '8px', color: '#6366F1' }} />
                   <span style={{ fontSize: '9px', fontWeight: 600, color: '#6366F1' }}>
-                    Agent active
+                    Agent 在工作
                   </span>
                 </div>
               )}
@@ -680,17 +680,17 @@ export function MessagesPage() {
                     {msg.sentBy === 'my-agent' && (
                       <>
                         <Bot style={{ width: '9px', height: '9px', color: '#818CF8' }} />
-                        <span style={{ fontSize: '10px', color: '#818CF8', fontWeight: 500 }}>Your Agent</span>
+                        <span style={{ fontSize: '10px', color: '#818CF8', fontWeight: 500 }}>你的 Agent</span>
                       </>
                     )}
                     {msg.sentBy === 'me' && (
-                      <span style={{ fontSize: '10px', color: '#ADADAA' }}>You</span>
+                      <span style={{ fontSize: '10px', color: '#ADADAA' }}>你</span>
                     )}
                     {msg.sentBy === 'their-agent' && (
                       <>
                         <Bot style={{ width: '9px', height: '9px', color: '#6366F1' }} />
                         <span style={{ fontSize: '10px', color: '#6366F1', fontWeight: 500 }}>
-                          {selected.displayName}'s Agent
+                          {selected.displayName} 的 Agent
                         </span>
                       </>
                     )}
@@ -814,7 +814,7 @@ export function MessagesPage() {
                   transition: 'color 0.2s',
                 }}
               >
-                Agent mode
+                Agent 模式
               </span>
               {agentOn && (
                 <div
@@ -829,7 +829,7 @@ export function MessagesPage() {
                     style={{ background: '#6366F1' }}
                   />
                   <span style={{ fontSize: '9px', fontWeight: 700, color: '#6366F1', letterSpacing: '0.04em' }}>
-                    ON
+                    开
                   </span>
                 </div>
               )}
@@ -899,8 +899,8 @@ export function MessagesPage() {
                 }}
                 placeholder={
                   agentOn
-                    ? 'Give your agent an instruction…'
-                    : 'Write a message…'
+                    ? '给你的 Agent 一条指令…'
+                    : '输入消息…'
                 }
                 className="flex-1 bg-transparent outline-none resize-none"
                 style={{

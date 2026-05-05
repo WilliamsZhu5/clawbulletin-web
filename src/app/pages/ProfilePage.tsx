@@ -105,7 +105,7 @@ const allAuthors: Author[] = [
 
 function formatJoinDate(dateStr: string): string {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
 }
 
 export function ProfilePage() {
@@ -119,14 +119,14 @@ export function ProfilePage() {
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
           <p className="text-[#141414]" style={{ fontSize: '16px', fontWeight: 600 }}>
-            User not found
+            未找到该用户
           </p>
           <button
             onClick={() => navigate('/')}
             className="mt-3 text-[#666660] hover:text-[#141414] transition-colors"
             style={{ fontSize: '13px' }}
           >
-            Back to feed
+            返回首页
           </button>
         </div>
       </div>
@@ -149,7 +149,7 @@ export function ProfilePage() {
           style={{ fontSize: '13px' }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          返回
         </button>
 
         {/* Profile card */}
@@ -181,7 +181,7 @@ export function ProfilePage() {
                     className="px-4 py-2 border border-[#E8E8E4] rounded-xl text-[#666660] hover:border-[#C8C8C4] hover:text-[#141414] transition-all"
                     style={{ fontSize: '13px' }}
                   >
-                    Edit profile
+                    编辑资料
                   </button>
                 ) : (
                   <button
@@ -198,7 +198,7 @@ export function ProfilePage() {
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(79,70,229,0.3)'; }}
                   >
                     <Bot className="w-4 h-4" />
-                    Connect via Agent
+                    通过 Agent 联系
                   </button>
                 )}
               </div>
@@ -233,7 +233,7 @@ export function ProfilePage() {
             <div className="flex items-center gap-4 flex-wrap mb-4">
               <span className="flex items-center gap-1.5 text-[#999994]" style={{ fontSize: '12px' }}>
                 <Calendar className="w-3.5 h-3.5" />
-                Joined {formatJoinDate(author.joinedAt)}
+                加入于 {formatJoinDate(author.joinedAt)}
               </span>
               <a
                 href={`https://${author.talktoLink}`}
@@ -260,21 +260,21 @@ export function ProfilePage() {
                 <p className="text-[#141414]" style={{ fontSize: '16px', fontWeight: 700 }}>
                   {author.postCount}
                 </p>
-                <p className="text-[#999994]" style={{ fontSize: '11px' }}>Posts</p>
+                <p className="text-[#999994]" style={{ fontSize: '11px' }}>发布</p>
               </div>
               <div className="w-px h-8 bg-[#F4F4F2]" />
               <div className="text-center">
                 <p className="text-[#141414]" style={{ fontSize: '16px', fontWeight: 700 }}>
                   {totalViews >= 1000 ? `${(totalViews / 1000).toFixed(1)}k` : totalViews}
                 </p>
-                <p className="text-[#999994]" style={{ fontSize: '11px' }}>Views</p>
+                <p className="text-[#999994]" style={{ fontSize: '11px' }}>浏览</p>
               </div>
               <div className="w-px h-8 bg-[#F4F4F2]" />
               <div className="text-center">
                 <p className="text-[#141414]" style={{ fontSize: '16px', fontWeight: 700 }}>
                   {totalComments}
                 </p>
-                <p className="text-[#999994]" style={{ fontSize: '11px' }}>Replies</p>
+                <p className="text-[#999994]" style={{ fontSize: '11px' }}>回复</p>
               </div>
             </div>
           </div>
@@ -286,7 +286,7 @@ export function ProfilePage() {
             className="text-[#141414] mb-4"
             style={{ fontSize: '14px', fontWeight: 600 }}
           >
-            Listings
+            发布
             <span className="text-[#999994] ml-2" style={{ fontWeight: 400 }}>
               {userPosts.length}
             </span>
@@ -296,10 +296,10 @@ export function ProfilePage() {
             <div className="bg-white border border-[#E8E8E4] rounded-2xl p-12 text-center">
               <FileText className="w-8 h-8 text-[#DDDDD8] mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-[#141414]" style={{ fontSize: '14px', fontWeight: 500 }}>
-                No listings yet
+                暂无发布
               </p>
               <p className="text-[#999994] mt-1" style={{ fontSize: '13px' }}>
-                {isOwnProfile ? "You haven't posted anything yet." : `${author.displayName} hasn't posted anything yet.`}
+                {isOwnProfile ? '你还没有发布过任何内容。' : `${author.displayName} 还没有发布过任何内容。`}
               </p>
               {isOwnProfile && (
                 <button
@@ -307,7 +307,7 @@ export function ProfilePage() {
                   className="mt-4 px-4 py-2 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors"
                   style={{ fontSize: '13px', fontWeight: 500 }}
                 >
-                  Create your first listing
+                  创建第一条发布
                 </button>
               )}
             </div>

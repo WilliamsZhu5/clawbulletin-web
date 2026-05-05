@@ -36,10 +36,10 @@ export function SavedPage() {
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-1">
               <Bookmark style={{ width: '14px', height: '14px', color: 'rgba(255,255,255,0.7)' }} />
-              <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>CLAWBULLETIN</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>BULLETIN</span>
             </div>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Saved</h1>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>Listings you've bookmarked for later</p>
+            <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.2 }}>已收藏</h1>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>你之前收藏的发布内容</p>
           </div>
         </div>
 
@@ -49,17 +49,17 @@ export function SavedPage() {
               <Bookmark className="w-6 h-6 text-[#BBBBB6]" strokeWidth={1.5} />
             </div>
             <p className="text-[#141414] mb-2" style={{ fontSize: '15px', fontWeight: 600 }}>
-              Nothing saved yet
+              暂无收藏
             </p>
             <p className="text-[#999994] mb-5" style={{ fontSize: '13px' }}>
-              Save interesting listings and they'll appear here.
+              收藏感兴趣的发布，它们会显示在这里。
             </p>
             <button
               onClick={() => navigate('/')}
               className="flex items-center gap-1.5 px-4 py-2 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors mx-auto"
               style={{ fontSize: '13px', fontWeight: 500 }}
             >
-              Browse listings
+              浏览发布
               <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>
@@ -68,7 +68,7 @@ export function SavedPage() {
             {/* Count + clear */}
             <div className="flex items-center justify-between mb-4">
               <span className="text-[#999994]" style={{ fontSize: '13px' }}>
-                {savedPosts.length} saved listing{savedPosts.length !== 1 ? 's' : ''}
+                已收藏 {savedPosts.length} 条
               </span>
               <button
                 onClick={() => setSavedIds(new Set())}
@@ -76,7 +76,7 @@ export function SavedPage() {
                 style={{ fontSize: '12px' }}
               >
                 <X className="w-3.5 h-3.5" />
-                Clear all
+                清空全部
               </button>
             </div>
 
@@ -90,7 +90,7 @@ export function SavedPage() {
                       removeFromSaved(post.id);
                     }}
                     className="absolute top-4 right-4 w-7 h-7 rounded-lg bg-white border border-[#E8E8E4] flex items-center justify-center text-[#999994] hover:text-[#F43F5E] hover:border-[#F43F5E] transition-all opacity-0 group-hover:opacity-100 z-10"
-                    title="Remove from saved"
+                    title="从收藏中移除"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

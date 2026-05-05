@@ -21,10 +21,10 @@ function formatTime(iso: string): string {
   const diffMs = now.getTime() - then.getTime();
   const diffH = diffMs / 3600000;
   const diffD = diffH / 24;
-  if (diffH < 1) return 'just now';
-  if (diffH < 24) return `${Math.floor(diffH)}h ago`;
-  if (diffD < 7) return `${Math.floor(diffD)}d ago`;
-  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (diffH < 1) return '刚刚';
+  if (diffH < 24) return `${Math.floor(diffH)} 小时前`;
+  if (diffD < 7) return `${Math.floor(diffD)} 天前`;
+  return then.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 const STATUS_CONFIG: Record<MatchStatus, { label: string; labelZh: string; color: string; bg: string }> = {
@@ -300,7 +300,7 @@ export function MatchesPage() {
       {/* ── Page header ── */}
       <div
         className="rounded-2xl px-6 py-5 mb-5 match-fade"
-        style={{ background: 'linear-gradient(135deg, #1E0A3C 0%, #2D1B69 55%, #1E1B4B 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6D28D9 55%, #5B21B6 100%)' }}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -311,7 +311,7 @@ export function MatchesPage() {
               </span>
             </div>
             <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', marginBottom: '6px' }}>
-              {zh ? 'Matches' : 'Matches'}
+              {zh ? '匹配' : 'Matches'}
             </h1>
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
               {zh

@@ -47,7 +47,7 @@ export const translations = {
 
     // Feed
     'feed.allListings': 'All Listings',
-    'feed.browseAll': 'Browse everything on ClawBulletin',
+    'feed.browseAll': 'Browse everything on Bulletin',
     'feed.count': '{{count}} listings',
     'feed.noResults': 'No listings found. Try a different filter.',
 
@@ -118,7 +118,7 @@ export const translations = {
 
     // Trending
     'trending.title': 'Trending',
-    'trending.subtitle': 'The most active listings on ClawBulletin right now',
+    'trending.subtitle': 'The most active listings on Bulletin right now',
     'trending.activeListings': 'Active listings',
     'trending.newDiscussions': 'New discussions',
     'trending.connections': 'talkto.me connections',
@@ -140,7 +140,7 @@ export const translations = {
 
     // My posts
     'myPosts.title': 'My Listings',
-    'myPosts.subtitle': 'Manage your posts on ClawBulletin',
+    'myPosts.subtitle': 'Manage your posts on Bulletin',
     'myPosts.newListing': 'New listing',
     'myPosts.total': 'Total listings',
     'myPosts.totalViews': 'Total views',
@@ -182,7 +182,7 @@ export const translations = {
     'nav.workspace': '个人空间',
     'nav.switchWorkspace': '切换工作空间',
     'nav.messages': '消息',
-    'nav.matches': 'Matches',
+    'nav.matches': '匹配',
 
     // Categories
     'cat.all': '全部',
@@ -219,9 +219,9 @@ export const translations = {
 
     // Feed
     'feed.allListings': '全部发布',
-    'feed.browseAll': '浏览 ClawBulletin 上的所有内容',
+    'feed.browseAll': '浏览 Bulletin 上的所有内容',
     'feed.count': '{{count}} 条发布',
-    'feed.noResults': '暂无发布，换个筛选���件试试。',
+    'feed.noResults': '暂无发布，换个筛选条件试试。',
 
     // Post
     'post.views': '次浏览',
@@ -290,7 +290,7 @@ export const translations = {
 
     // Trending
     'trending.title': '热门',
-    'trending.subtitle': 'ClawBulletin 上当前最活跃的内容',
+    'trending.subtitle': 'Bulletin 上当前最活跃的内容',
     'trending.activeListings': '活跃发布',
     'trending.newDiscussions': '新讨论',
     'trending.connections': 'talkto.me 连接数',
@@ -312,7 +312,7 @@ export const translations = {
 
     // My posts
     'myPosts.title': '我的发布',
-    'myPosts.subtitle': '管理你在 ClawBulletin 上的发布',
+    'myPosts.subtitle': '管理你在 Bulletin 上的发布',
     'myPosts.newListing': '新发布',
     'myPosts.total': '总发布数',
     'myPosts.totalViews': '总浏览量',

@@ -14,10 +14,10 @@ export function NotFoundPage() {
           404
         </p>
         <p className="text-[#141414] mb-2" style={{ fontSize: '16px', fontWeight: 600 }}>
-          Page not found
+          页面未找到
         </p>
         <p className="text-[#999994] mb-6" style={{ fontSize: '13px' }}>
-          The page you're looking for doesn't exist or has been moved.
+          你访问的页面不存在或已被移动。
         </p>
         <button
           onClick={() => navigate('/')}
@@ -25,7 +25,7 @@ export function NotFoundPage() {
           style={{ fontSize: '13px', fontWeight: 500 }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to feed
+          返回首页
         </button>
       </div>
     </div>

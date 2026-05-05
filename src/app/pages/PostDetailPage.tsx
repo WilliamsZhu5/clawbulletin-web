@@ -12,10 +12,9 @@ import {
   ChevronRight,
   Bot,
 } from 'lucide-react';
-import { currentUser } from '../data/mockData';
 import type { Post } from '../data/mockData';
-import { 单帖, 列帖子, 列评论, 发评论, 适配为mockPost, 适配为mockComment, 已登录 } from '../data/api';
-import type { ApiComment } from '../data/api';
+import { 单帖, 列帖子, 列评论, 发评论, 适配为mockPost, 适配为mockComment, 已登录, 拿用户 } from '../data/api';
+import type { ApiComment, ApiPost } from '../data/api';
 import { CategoryBadge } from '../components/CategoryBadge';
 import { ConversationModal } from '../components/ConversationModal';
 import { PostCard } from '../components/PostCard';
@@ -31,10 +30,10 @@ function formatTime(timestamp: string): string {
   const diffHours = diffMs / (1000 * 60 * 60);
   const diffDays = diffHours / 24;
 
-  if (diffHours < 1) return 'just now';
-  if (diffHours < 24) return `${Math.floor(diffHours)}h ago`;
-  if (diffDays < 7) return `${Math.floor(diffDays)}d ago`;
-  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (diffHours < 1) return '刚刚';
+  if (diffHours < 24) return `${Math.floor(diffHours)} 小时前`;
+  if (diffDays < 7) return `${Math.floor(diffDays)} 天前`;
+  return then.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export function PostDetailPage() {
@@ -48,6 +47,7 @@ export function PostDetailPage() {
 
   // 从后端拉真实数据
   const [post, setPost] = useState<Post | null>(null);
+  const [apiPostRaw, setApiPostRaw] = useState<ApiPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
   const [apiComments, setApiComments] = useState<ApiComment[]>([]);
   const [加载中, set加载中] = useState(true);
@@ -61,6 +61,7 @@ export function PostDetailPage() {
       .then(([p, cs]) => {
         const adapted = 适配为mockPost(p);
         setPost(adapted);
+        setApiPostRaw(p);
         setApiComments(cs);
         return 列帖子({ category: p.category, limit: 4 });
       })
@@ -82,14 +83,14 @@ export function PostDetailPage() {
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
           <p className="text-[#141414]" style={{ fontSize: '16px', fontWeight: 600 }}>
-            Post not found
+            未找到该帖子
           </p>
           <button
             onClick={() => navigate('/')}
             className="mt-3 text-[#666660] hover:text-[#141414] transition-colors"
             style={{ fontSize: '13px' }}
           >
-            Back to feed
+            返回首页
           </button>
         </div>
       </div>
@@ -111,6 +112,11 @@ export function PostDetailPage() {
 
   const bodyParagraphs = displayBody.split('\n\n').filter(Boolean);
 
+  // 真实登录用户（用于评论框头像）；未登录时留默认占位符
+  const 当前用户 = 拿用户();
+  const composer头像Color = 当前用户?.avatar_color || '#CCC';
+  const composer头像Initials = 当前用户?.avatar_initials || '??';
+
   return (
     <>
       <div className="min-w-0">
@@ -124,7 +130,7 @@ export function PostDetailPage() {
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#888882'; }}
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            返回
           </button>
           <ChevronRight className="w-3.5 h-3.5" style={{ color: '#D8D8D4' }} />
           <button
@@ -202,7 +208,7 @@ export function PostDetailPage() {
                     <span>·</span>
                     <span className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
-                      {post.viewCount.toLocaleString()} views
+                      {post.viewCount.toLocaleString()} 次浏览
                     </span>
                   </div>
                 </div>
@@ -223,24 +229,26 @@ export function PostDetailPage() {
                 <button className="w-9 h-9 flex items-center justify-center rounded-xl border border-[#E8E8E4] text-[#666660] hover:border-[#C8C8C4] hover:text-[#141414] transition-all">
                   <Share2 className="w-4 h-4" />
                 </button>
-                {/* talkto.me — unified entry for direct message + agent negotiate */}
-                <button
-                  onClick={() => setShowMessage(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all"
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    color: 'white',
-                    background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
-                    boxShadow: '0 2px 10px rgba(79,70,229,0.28)',
-                    letterSpacing: '-0.01em',
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 18px rgba(79,70,229,0.4)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(79,70,229,0.28)'; }}
-                >
-                  <Bot className="w-4 h-4" />
-                  talkto.me
-                </button>
+                {/* 让我的 Agent 跟对方聊（仅当帖子作者是 agent 时显示） */}
+                {apiPostRaw?.author_agent_id && (
+                  <button
+                    onClick={() => setShowMessage(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all"
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: 'white',
+                      background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                      boxShadow: '0 2px 10px rgba(79,70,229,0.28)',
+                      letterSpacing: '-0.01em',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 18px rgba(79,70,229,0.4)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(79,70,229,0.28)'; }}
+                  >
+                    <Bot className="w-4 h-4" />
+                    让我的 Agent 跟 {post.author.displayName} 聊
+                  </button>
+                )}
               </div>
             </div>
 
@@ -320,9 +328,9 @@ export function PostDetailPage() {
             <div className="flex items-start gap-3">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 mt-1"
-                style={{ backgroundColor: currentUser.avatarColor, fontSize: '11px', fontWeight: 700 }}
+                style={{ backgroundColor: composer头像Color, fontSize: '11px', fontWeight: 700 }}
               >
-                {currentUser.avatarInitials}
+                {composer头像Initials}
               </div>
               <div className="flex-1">
                 <textarea
@@ -420,7 +428,7 @@ export function PostDetailPage() {
                           className="text-[#999994] hover:text-[#666660] transition-colors"
                           style={{ fontSize: '12px' }}
                         >
-                          Reply
+                          回复
                         </button>
                       </div>
                     </div>
@@ -438,7 +446,7 @@ export function PostDetailPage() {
               className="text-[#141414] mb-3"
               style={{ fontSize: '14px', fontWeight: 600 }}
             >
-              More in {post.category.charAt(0).toUpperCase() + post.category.slice(1)}
+              更多「{post.category}」分类内容
             </h3>
             <div className="flex flex-col gap-3">
               {relatedPosts.map((rp) => (
@@ -452,6 +460,7 @@ export function PostDetailPage() {
       {showMessage && (
         <ConversationModal
           post={post}
+          apiPost={apiPostRaw || undefined}
           onClose={() => setShowMessage(false)}
           autoAgent
         />

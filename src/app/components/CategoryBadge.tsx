@@ -6,6 +6,8 @@ interface CategoryBadgeProps {
   size?: 'sm' | 'md';
 }
 
+// element-level 多色（恢复 figma 8f032d0 风）：
+// 每个 category 一种独立颜色，浅底 + 深字 + 彩色 dot；底色（页面 / 三栏）依旧纯白
 const categoryConfig: Record<CategoryId, {
   label: string;
   bg: string;
@@ -13,13 +15,13 @@ const categoryConfig: Record<CategoryId, {
   dot: string;
   border: string;
 }> = {
-  all:         { label: 'All',         bg: 'rgba(100,100,100,0.08)',  text: '#555550', dot: '#888882', border: 'rgba(100,100,100,0.15)' },
-  jobs:        { label: 'Jobs',        bg: 'rgba(99,102,241,0.09)',   text: '#3730A3', dot: '#6366F1', border: 'rgba(99,102,241,0.2)' },
-  projects:    { label: 'Projects',    bg: 'rgba(139,92,246,0.09)',   text: '#5B21B6', dot: '#8B5CF6', border: 'rgba(139,92,246,0.2)' },
-  marketplace: { label: 'Marketplace', bg: 'rgba(249,115,22,0.09)',   text: '#C2410C', dot: '#F97316', border: 'rgba(249,115,22,0.2)' },
-  skills:      { label: 'Skills',      bg: 'rgba(34,197,94,0.09)',    text: '#15803D', dot: '#22C55E', border: 'rgba(34,197,94,0.2)' },
-  housing:     { label: 'Housing',     bg: 'rgba(20,184,166,0.09)',   text: '#0F766E', dot: '#14B8A6', border: 'rgba(20,184,166,0.2)' },
-  events:      { label: 'Events',      bg: 'rgba(244,63,94,0.09)',    text: '#BE123C', dot: '#F43F5E', border: 'rgba(244,63,94,0.2)' },
+  all:         { label: '全部', bg: 'var(--cat-all-bg)',         text: 'var(--cat-all-text)',         dot: 'var(--cat-all-dot)',         border: 'var(--cat-all-border)' },
+  jobs:        { label: '职位', bg: 'var(--cat-jobs-bg)',        text: 'var(--cat-jobs-text)',        dot: 'var(--cat-jobs-dot)',        border: 'var(--cat-jobs-border)' },
+  projects:    { label: '项目', bg: 'var(--cat-projects-bg)',    text: 'var(--cat-projects-text)',    dot: 'var(--cat-projects-dot)',    border: 'var(--cat-projects-border)' },
+  marketplace: { label: '二手', bg: 'var(--cat-marketplace-bg)', text: 'var(--cat-marketplace-text)', dot: 'var(--cat-marketplace-dot)', border: 'var(--cat-marketplace-border)' },
+  skills:      { label: '技能', bg: 'var(--cat-skills-bg)',      text: 'var(--cat-skills-text)',      dot: 'var(--cat-skills-dot)',      border: 'var(--cat-skills-border)' },
+  housing:     { label: '租房', bg: 'var(--cat-housing-bg)',     text: 'var(--cat-housing-text)',     dot: 'var(--cat-housing-dot)',     border: 'var(--cat-housing-border)' },
+  events:      { label: '活动', bg: 'var(--cat-events-bg)',      text: 'var(--cat-events-text)',      dot: 'var(--cat-events-dot)',      border: 'var(--cat-events-border)' },
 };
 
 export function CategoryBadge({ category, subcategory, size = 'md' }: CategoryBadgeProps) {
@@ -40,7 +42,7 @@ export function CategoryBadge({ category, subcategory, size = 'md' }: CategoryBa
           letterSpacing: '0.01em',
         }}
       >
-        {/* Dot with subtle glow */}
+        {/* 彩色小点：figma 风 subtle glow */}
         <span
           className="inline-block rounded-full"
           style={{
@@ -53,7 +55,7 @@ export function CategoryBadge({ category, subcategory, size = 'md' }: CategoryBa
         {cfg.label}
       </span>
       {subcategory && (
-        <span style={{ fontSize: sm ? '10px' : '11px', color: '#ADADAA', fontWeight: 400 }}>
+        <span style={{ fontSize: sm ? '10px' : '11px', color: '#999999', fontWeight: 400 }}>
           {subcategory}
         </span>
       )}
