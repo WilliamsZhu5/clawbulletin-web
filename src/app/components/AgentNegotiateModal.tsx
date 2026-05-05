@@ -1,746 +1,711 @@
+// Agent 谈判 modal — 真后端 conversations + 谈判语义（议价中 / 已达成 / 已搁置 / 已拒绝）
+// 双 stage：briefing（指令录入）→ active（真 agent 对话 + 谈判按钮）
 import { useState, useEffect, useRef } from 'react';
-import { X, Bot, Zap, Check, Radio, Sparkles, Handshake, ArrowUpRight } from 'lucide-react';
+import { Bot, Sparkles, Check, AlertCircle, X as XIcon, Pause, HandCoins } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { useNavigate } from 'react-router';
 import type { Post } from '../data/mockData';
 import { currentUser } from '../data/mockData';
-import { useMatches } from '../context/MatchContext';
-import type { Match } from '../data/matchData';
+import {
+  发起对话, 追加消息, 拿对话, 更新谈判进度, 已登录, 拿用户,
+  type ApiPost, type 对话, type 谈判状态,
+} from '../data/api';
+import {
+  ChatHeader,
+  ChatInput,
+  MessageBubble,
+  MessageList,
+  TypingIndicator,
+  聊天色,
+} from './chat';
 
-type Stage = 'briefing' | 'active' | 'resolved';
-type Outcome = 'accepted' | 'declined' | 'drafting' | null;
-
-interface AgentMessage {
-  id: string;
-  from: 'your-agent' | 'their-agent' | 'system' | 'decision';
-  content: string;
-  timestamp: string;
-  isProcessing?: boolean;
-}
-
-function getTimestamp(offsetMs: number): string {
-  const d = new Date(Date.now() + offsetMs);
-  return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-
-function generateConversation(post: Post, instruction: string): AgentMessage[] {
-  const ts = (s: number) => getTimestamp(s * 1000);
-  const authorName = post.author.displayName;
-
-  if (post.category === 'marketplace') {
-    const price = post.compensation || 'listed price';
-    return [
-      { id: 'm0', from: 'system', content: `Establishing A2A channel → ${authorName}'s Agent via talkto.me`, timestamp: ts(0) },
-      { id: 'm1', from: 'system', content: 'Secure channel established. End-to-end encrypted.', timestamp: ts(2) },
-      { id: 'm2', from: 'your-agent', content: `Hello. I'm ${currentUser.displayName}'s Agent. My client is interested in "${post.title}" listed at ${price}. They'd like to discuss terms.`, timestamp: ts(4) },
-      { id: 'm3', from: 'their-agent', content: `Hi. I'm ${authorName}'s Agent. I can confirm the item is still available. The seller has set parameters I'm working within. What is your client's position?`, timestamp: ts(8) },
-      { id: 'm4', from: 'your-agent', content: `Client instruction: "${instruction}". Based on this, I'm authorised to negotiate. What's the seller's best price for a prompt transaction?`, timestamp: ts(12) },
-      { id: 'm5', from: 'their-agent', content: `Processing seller parameters...`, timestamp: ts(15), isProcessing: true },
-      { id: 'm6', from: 'their-agent', content: `The seller can offer a 5% reduction from listing price, conditional on local pickup within 5 days. The AppleCare+ transfer is included in that figure.`, timestamp: ts(19) },
-      { id: 'm7', from: 'your-agent', content: `Understood. The offer is within range but I want to confirm one variable before accepting. Flagging for client decision.`, timestamp: ts(22) },
-      { id: 'm8', from: 'decision', content: `Counter-offer received: ${price} → −5% (approx). Condition: local pickup within 5 days. AppleCare+ included in transfer. Your agent assesses this as within your stated parameters. How would you like to proceed?`, timestamp: ts(25) },
-    ];
-  }
-
-  if (post.category === 'jobs') {
-    return [
-      { id: 'm0', from: 'system', content: `Establishing A2A channel → ${authorName}'s Agent via talkto.me`, timestamp: ts(0) },
-      { id: 'm1', from: 'system', content: 'Secure channel established.', timestamp: ts(2) },
-      { id: 'm2', from: 'your-agent', content: `Hello. I'm ${currentUser.displayName}'s Agent. My client has reviewed the "${post.title}" listing and is a strong fit. I'd like to surface key questions before requesting a direct conversation.`, timestamp: ts(5) },
-      { id: 'm3', from: 'their-agent', content: `Hi. I'm ${authorName}'s Agent. I screen initial interest before escalating to the team. Please share your client's core relevant background and primary questions.`, timestamp: ts(9) },
-      { id: 'm4', from: 'your-agent', content: `Client instruction: "${instruction}". My client's background aligns with the technical requirements listed. Key questions: remote flexibility, equity band, and current team size.`, timestamp: ts(13) },
-      { id: 'm5', from: 'their-agent', content: `Running fit assessment against poster's criteria...`, timestamp: ts(16), isProcessing: true },
-      { id: 'm6', from: 'their-agent', content: `Fit signal is positive. On your questions: the role is on-site in SF 4 days/week, equity is 0.5–1.5% based on level, team is currently 6 people pre-Series A. The founders want a direct call before further info exchange.`, timestamp: ts(21) },
-      { id: 'm7', from: 'your-agent', content: `Parameters noted. My client is open to the on-site requirement. Before I propose availability windows, I need to confirm one item.`, timestamp: ts(24) },
-      { id: 'm8', from: 'decision', content: `Role parameters confirmed: SF on-site 4d/week, 0.5–1.5% equity, 6-person team pre-Series A. Team wants a direct intro call first. Your agent recommends proceeding. Confirm scheduling?`, timestamp: ts(27) },
-    ];
-  }
-
-  if (post.category === 'projects' || post.subcategory === 'Co-founder') {
-    return [
-      { id: 'm0', from: 'system', content: `Establishing A2A channel → ${authorName}'s Agent via talkto.me`, timestamp: ts(0) },
-      { id: 'm1', from: 'system', content: 'Secure channel established.', timestamp: ts(2) },
-      { id: 'm2', from: 'your-agent', content: `Hello. I'm ${currentUser.displayName}'s Agent. My client is interested in collaborating on "${post.title}". I'll share a fit signal before requesting further time from the poster.`, timestamp: ts(5) },
-      { id: 'm3', from: 'their-agent', content: `Hi. I'm ${authorName}'s Agent. The poster filters incoming collaboration inquiries carefully. Please share your client's relevant profile and availability.`, timestamp: ts(9) },
-      { id: 'm4', from: 'your-agent', content: `Client instruction: "${instruction}". My client has complementary technical skills, 10+ hrs/week available, no conflicting commitments. They're willing to share a GitHub link.`, timestamp: ts(14) },
-      { id: 'm5', from: 'their-agent', content: `Assessing against poster's criteria...`, timestamp: ts(17), isProcessing: true },
-      { id: 'm6', from: 'their-agent', content: `The poster's response: genuine interest. They prefer an async intro note first — 3–5 sentences on your client's relevant background — before committing to a call. Standard filter.`, timestamp: ts(22) },
-      { id: 'm7', from: 'your-agent', content: `Understood. I can draft the intro note from my client's profile, or wait for manual input. Pausing for decision.`, timestamp: ts(25) },
-      { id: 'm8', from: 'decision', content: `Poster is interested. Requests a short async intro note (3–5 sentences) before scheduling a call. Your agent can draft this from your profile. Approve agent-drafted intro, or write it yourself?`, timestamp: ts(28) },
-    ];
-  }
-
-  if (post.category === 'housing') {
-    return [
-      { id: 'm0', from: 'system', content: `Establishing A2A channel → ${authorName}'s Agent via talkto.me`, timestamp: ts(0) },
-      { id: 'm1', from: 'system', content: 'Secure channel established.', timestamp: ts(2) },
-      { id: 'm2', from: 'your-agent', content: `Hello. I'm ${currentUser.displayName}'s Agent. My client is interested in the housing listing "${post.title}". I'd like to confirm availability and key terms.`, timestamp: ts(5) },
-      { id: 'm3', from: 'their-agent', content: `Hi. I'm ${authorName}'s Agent. The listing is still available. What are your client's primary questions?`, timestamp: ts(8) },
-      { id: 'm4', from: 'your-agent', content: `Client instruction: "${instruction}". Key questions: earliest available move-in date, whether utilities are included, and flexibility on lease length.`, timestamp: ts(12) },
-      { id: 'm5', from: 'their-agent', content: `Checking with the poster on those parameters...`, timestamp: ts(15), isProcessing: true },
-      { id: 'm6', from: 'their-agent', content: `Poster's responses: earliest move-in is flexible within ±1 week of listed date; utilities not included (est. $100–130/mo); lease is fixed-term but a 1-month extension after the term is negotiable.`, timestamp: ts(20) },
-      { id: 'm7', from: 'your-agent', content: `Terms noted and within my client's parameters. Flagging for confirmation before proceeding to intro call.`, timestamp: ts(23) },
-      { id: 'm8', from: 'decision', content: `Housing terms confirmed: flexible move-in, utilities ~$100–130/mo separate, lease extension negotiable. Poster is open to a brief call. Your agent recommends scheduling. Proceed?`, timestamp: ts(26) },
-    ];
-  }
-
-  return [
-    { id: 'm0', from: 'system', content: `Establishing A2A channel → ${authorName}'s Agent via talkto.me`, timestamp: ts(0) },
-    { id: 'm1', from: 'system', content: 'Secure channel established.', timestamp: ts(2) },
-    { id: 'm2', from: 'your-agent', content: `Hello. I'm ${currentUser.displayName}'s Agent. My client is interested in "${post.title}". Client instruction: "${instruction}". How would you like to proceed?`, timestamp: ts(5) },
-    { id: 'm3', from: 'their-agent', content: `Hi. I'm ${authorName}'s Agent. I'll relay this to the poster and return with context.`, timestamp: ts(9) },
-    { id: 'm4', from: 'their-agent', content: `Checking...`, timestamp: ts(11), isProcessing: true },
-    { id: 'm5', from: 'their-agent', content: `Poster is open to connecting. They'd prefer a direct message via talkto.me with more specific context. I can flag your client as a priority contact.`, timestamp: ts(16) },
-    { id: 'm6', from: 'your-agent', content: `Understood. I'll prepare a context summary. Pausing to confirm next steps with my client.`, timestamp: ts(19) },
-    { id: 'm7', from: 'decision', content: `Poster is open to connecting. Their agent can flag your client as priority. Your agent can draft a context message and send it via talkto.me. Approve?`, timestamp: ts(22) },
-  ];
-}
+type Stage = 'briefing' | 'active';
 
 interface Props {
   post: Post;
+  apiPost?: ApiPost;             // 真 ApiPost（含 author_agent_id）— 必须才能起真对话
+  existingConversationId?: string;
   onClose: () => void;
 }
 
-const REVEAL_DELAYS_MS = [0, 2000, 4200, 7800, 11500, 15500, 19800, 23200, 26500, 29500];
+/* ─── 工具 ────────────────────────────────────────────────── */
 
-export function AgentNegotiateModal({ post, onClose }: Props) {
+function 时间(t: string): string {
+  try {
+    return new Date(t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+function 格式化金额(cents: number | null | undefined, currency: string | null | undefined): string {
+  if (cents == null) return '';
+  const 元 = cents / 100;
+  const 单位 = (currency || '').toUpperCase();
+  if (单位 === 'USD') return `$${元.toFixed(2)}`;
+  if (!单位 || 单位 === 'CNY' || 单位 === 'RMB') {
+    return Number.isInteger(元) ? `¥${元.toLocaleString()}` : `¥${元.toFixed(2)}`;
+  }
+  return `${单位} ${元.toFixed(2)}`;
+}
+
+function 状态chip(s: 谈判状态 | null | undefined) {
+  if (s === '议价中') {
+    return {
+      文字: '议价中',
+      颜色: '#16A34A',
+      背景: 'rgba(34,197,94,0.10)',
+      点: true,
+    };
+  }
+  if (s === '已达成') {
+    return {
+      文字: '已达成',
+      颜色: '#16A34A',
+      背景: 'rgba(34,197,94,0.10)',
+      点: false,
+    };
+  }
+  if (s === '已搁置') {
+    return {
+      文字: '已搁置',
+      颜色: '#6B7280',
+      背景: '#F0F0EE',
+      点: false,
+    };
+  }
+  if (s === '已拒绝') {
+    return {
+      文字: '已拒绝',
+      颜色: '#DC2626',
+      背景: 'rgba(220,38,38,0.08)',
+      点: false,
+    };
+  }
+  return {
+    文字: '未启动',
+    颜色: '#6B7280',
+    背景: '#F0F0EE',
+    点: false,
+  };
+}
+
+/* ─── 组件 ────────────────────────────────────────────────── */
+
+export function AgentNegotiateModal({ post, apiPost, existingConversationId, onClose }: Props) {
   const { t } = useLanguage();
-  const navigate = useNavigate();
-  const { addMatch } = useMatches();
-  const [stage, setStage] = useState<Stage>('briefing');
+  const [stage, setStage] = useState<Stage>(existingConversationId ? 'active' : 'briefing');
   const [instruction, setInstruction] = useState('');
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [outcome, setOutcome] = useState<Outcome>(null);
-  const [matchSaved, setMatchSaved] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 真对话状态
+  const [对话状态, set对话状态] = useState<对话 | null>(null);
+  const [初始化中, set初始化中] = useState<boolean>(false);
+  const [初始化错, set初始化错] = useState<string | null>(null);
+  const [发送中, set发送中] = useState<boolean>(false);
+  const [发送错, set发送错] = useState<string | null>(null);
+  const [输入文本, set输入文本] = useState('');
+  const [谈判处理中, set谈判处理中] = useState<boolean>(false);
+  const [谈判错, set谈判错] = useState<string | null>(null);
+  const [报价dialog开, set报价dialog开] = useState<boolean>(false);
+  const [报价输入, set报价输入] = useState<string>('');
+
+  const 当前用户对象 = 拿用户();
+  const 我方头像Color = 当前用户对象?.avatar_color || currentUser.avatarColor;
+  const 我方头像Initials = 当前用户对象?.avatar_initials || currentUser.avatarInitials;
+  const 我方显示名 = 当前用户对象?.display_name || currentUser.displayName;
+
+  const 真对话可用 = !!(apiPost && apiPost.author_agent_id && 已登录());
+  const 对方未绑agent = !!(apiPost && !apiPost.author_agent_id);
+
+  /* ─── briefing → active 时起真对话 ─── */
+  const 已发起ref = useRef(false);
   useEffect(() => {
     if (stage !== 'active') return;
-    const conversation = generateConversation(post, instruction);
-    setMessages(conversation);
-    setVisibleCount(0);
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    conversation.forEach((_, i) => {
-      const delay = REVEAL_DELAYS_MS[i] ?? REVEAL_DELAYS_MS[REVEAL_DELAYS_MS.length - 1] + (i - REVEAL_DELAYS_MS.length + 1) * 2500;
-      timers.push(setTimeout(() => setVisibleCount(i + 1), delay));
-    });
-    return () => timers.forEach(clearTimeout);
+    let 取消 = false;
+    async function 初始化() {
+      set初始化中(true);
+      set初始化错(null);
+      try {
+        if (existingConversationId) {
+          const 拉 = await 拿对话(existingConversationId);
+          if (!取消) set对话状态(拉);
+        } else if (真对话可用) {
+          if (已发起ref.current) return;
+          已发起ref.current = true;
+          const c = await 发起对话({
+            对方agent_id: apiPost!.author_agent_id!,
+            关联帖子_id: apiPost!.id,
+            首条消息: instruction.trim() || undefined,
+          });
+          if (!取消) set对话状态(c);
+          // 自动把谈判进入"议价中"，让 chip + 系统消息出现
+          if (!取消 && c) {
+            try {
+              const c2 = await 更新谈判进度(c.id, { 状态: '议价中' });
+              if (!取消) set对话状态(c2);
+            } catch (e: any) {
+              // 忽略 — 用户后续可以手动点
+              if (!取消) set谈判错(e?.message || String(e));
+            }
+          }
+        }
+      } catch (e: any) {
+        if (!取消) set初始化错(e?.message || String(e));
+      } finally {
+        if (!取消) set初始化中(false);
+      }
+    }
+    初始化();
+    return () => {
+      取消 = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [visibleCount]);
+  /* ─── 发送一条消息 ─── */
+  async function 处理发送() {
+    const 文本 = 输入文本.trim();
+    if (!文本 || 发送中 || !对话状态) return;
+    set发送中(true);
+    set发送错(null);
+    try {
+      const 更新 = await 追加消息(对话状态.id, 文本);
+      set对话状态(更新);
+      set输入文本('');
+    } catch (e: any) {
+      set发送错(e?.message || String(e));
+    } finally {
+      set发送中(false);
+    }
+  }
 
-  const quickSuggestions: Record<string, string[]> = {
-    marketplace: ['请压价 —— 上限是标价的 9 折', '问问商品成色，是否可以送达', '确认价格是否可议'],
-    jobs: ['询问是否支持远程，以及期权区间', '了解团队规模和融资阶段', '约电话前先问清更多细节'],
-    projects: ['了解股权比例与每周时间承诺', '约电话前先做异步介绍', '确认是付费还是仅期权'],
-    housing: ['询问最早入住时间和水电费用', '问问租期是否可灵活调整', '确认租金包含哪些项目'],
-    skills: ['确认档期和小时费用', '询问过往作品案例', '了解合作形式'],
-    events: ['询问是否还有名额', '索要完整议程', '了解嘉宾阵容'],
-  };
+  /* ─── 谈判进度变更 ─── */
+  async function 处理谈判变更(新状态: 谈判状态, 成交价_cents?: number, 成交价_currency?: string) {
+    if (!对话状态 || 谈判处理中) return;
+    set谈判处理中(true);
+    set谈判错(null);
+    try {
+      const 更新 = await 更新谈判进度(对话状态.id, {
+        状态: 新状态,
+        ...(成交价_cents != null ? { 成交价_cents } : {}),
+        ...(成交价_currency ? { 成交价_currency } : {}),
+      });
+      set对话状态(更新);
+    } catch (e: any) {
+      set谈判错(e?.message || String(e));
+    } finally {
+      set谈判处理中(false);
+    }
+  }
 
-  const suggestions = quickSuggestions[post.category] ?? ['先问清更多细节', '询问档期', '请对方报条件'];
+  function 处理接受报价() {
+    void 处理谈判变更('已达成', 对话状态?.成交价_cents ?? undefined, 对话状态?.成交价_currency ?? 'CNY');
+  }
+  function 处理暂停() {
+    void 处理谈判变更('已搁置');
+  }
+  function 处理拒绝() {
+    void 处理谈判变更('已拒绝');
+  }
+  function 处理打开报价dialog() {
+    set报价dialog开(true);
+    set报价输入('');
+  }
+  async function 处理提交报价() {
+    const 数 = Number(报价输入);
+    if (!Number.isFinite(数) || 数 <= 0) {
+      set谈判错('请填写成交价');
+      return;
+    }
+    set报价dialog开(false);
+    await 处理谈判变更('已达成', Math.round(数 * 100), 'CNY');
+  }
 
+  /* ─── 渲染消息 ─── */
+  const 节点列表: React.ReactNode[] = [];
+  const 消息们 = 对话状态?.消息 ?? [];
+  消息们.forEach((m, idx) => {
+    if (m.是否系统消息) {
+      节点列表.push(
+        <MessageBubble
+          key={m.id}
+          角色="system"
+          内容={m.内容}
+          动画索引={idx}
+        />,
+      );
+      return;
+    }
+    const 上一条 = idx > 0 ? 消息们[idx - 1] : null;
+    const 同发送者 = !!(上一条 && 上一条.发送方_agent_id === m.发送方_agent_id);
+    const 是我方 = m.是否我方;
+    if (是我方) {
+      节点列表.push(
+        <MessageBubble
+          key={m.id}
+          角色="user"
+          头像={{ 首字母: 我方头像Initials, 颜色: 我方头像Color }}
+          名字={`${我方显示名} 的 Agent`}
+          内容={m.内容}
+          时间={时间(m.创建时间)}
+          显示头像={!同发送者}
+          动画索引={idx}
+        />,
+      );
+    } else {
+      节点列表.push(
+        <MessageBubble
+          key={m.id}
+          角色="agent"
+          头像={{
+            首字母: m.发送方_avatar_initials || post.author.avatarInitials,
+            颜色: m.发送方_avatar_color || post.author.avatarColor,
+          }}
+          名字={m.发送方_display_name || `${post.author.displayName} 的 Agent`}
+          内容={m.内容}
+          时间={时间(m.创建时间)}
+          显示头像={!同发送者}
+          显示名字={!同发送者}
+          动画索引={idx}
+        />,
+      );
+    }
+  });
+  if (发送中) {
+    节点列表.push(
+      <TypingIndicator
+        key="__sending__"
+        头像={{ 首字母: post.author.avatarInitials, 颜色: post.author.avatarColor }}
+        文案="对方 Agent 正在回复…"
+      />,
+    );
+  }
+
+  /* ─── 状态 chip ─── */
+  const chip信息 = 状态chip(对话状态?.谈判状态);
+  const 进度chip = (
+    <span
+      style={{
+        fontSize: 10,
+        fontWeight: 700,
+        color: chip信息.颜色,
+        background: chip信息.背景,
+        padding: '4px 10px',
+        borderRadius: 999,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5,
+      }}
+    >
+      {chip信息.点 && <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />}
+      {chip信息.文字}
+      {对话状态?.谈判状态 === '已达成' && 对话状态?.成交价_cents != null && (
+        <span style={{ marginLeft: 4, fontWeight: 600, opacity: 0.85 }}>
+          · {格式化金额(对话状态.成交价_cents, 对话状态.成交价_currency)}
+        </span>
+      )}
+    </span>
+  );
+
+  /* ─── 谈判按钮区（active 阶段、状态非终态时） ─── */
+  const 当前状态 = 对话状态?.谈判状态;
+  const 可操作 = !!对话状态 && (当前状态 === '议价中' || 当前状态 == null);
+  const 终态 = 当前状态 === '已达成' || 当前状态 === '已拒绝';
+
+  const 按钮区 = 可操作 && !终态 && (
+    <div
+      style={{
+        display: 'flex',
+        gap: 8,
+        flexWrap: 'wrap',
+        padding: '10px 14px',
+        background: 'rgba(79,70,229,0.04)',
+        borderTop: `1px solid ${聊天色.描边浅}`,
+        borderBottom: `1px solid ${聊天色.描边浅}`,
+      }}
+    >
+      <button
+        onClick={处理接受报价}
+        disabled={谈判处理中}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '7px 13px',
+          borderRadius: 10,
+          border: 'none',
+          fontSize: 12,
+          fontWeight: 700,
+          color: 'white',
+          background: 谈判处理中 ? '#A5A5A0' : 聊天色.紫渐变,
+          cursor: 谈判处理中 ? 'wait' : 'pointer',
+          boxShadow: '0 2px 8px rgba(79,70,229,0.28)',
+        }}
+      >
+        <Check style={{ width: 13, height: 13 }} />
+        💰 接受报价
+      </button>
+      <button
+        onClick={处理打开报价dialog}
+        disabled={谈判处理中}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '7px 13px',
+          borderRadius: 10,
+          fontSize: 12,
+          fontWeight: 600,
+          color: 聊天色.紫,
+          background: 'rgba(79,70,229,0.06)',
+          border: '1px solid rgba(79,70,229,0.2)',
+          cursor: 谈判处理中 ? 'wait' : 'pointer',
+        }}
+      >
+        <HandCoins style={{ width: 13, height: 13 }} />
+        🤝 提议成交价
+      </button>
+      <button
+        onClick={处理暂停}
+        disabled={谈判处理中}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '7px 13px',
+          borderRadius: 10,
+          fontSize: 12,
+          color: 聊天色.字浅,
+          background: 'white',
+          border: `1px solid ${聊天色.描边}`,
+          cursor: 谈判处理中 ? 'wait' : 'pointer',
+        }}
+      >
+        <Pause style={{ width: 13, height: 13 }} />
+        ⏸ 暂停谈判
+      </button>
+      <button
+        onClick={处理拒绝}
+        disabled={谈判处理中}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '7px 13px',
+          borderRadius: 10,
+          fontSize: 12,
+          color: '#B91C1C',
+          background: 'white',
+          border: '1px solid rgba(220,38,38,0.3)',
+          cursor: 谈判处理中 ? 'wait' : 'pointer',
+        }}
+      >
+        <XIcon style={{ width: 13, height: 13 }} />
+        ❌ 拒绝
+      </button>
+      {谈判错 && (
+        <span style={{ fontSize: 11, color: '#B91C1C', alignSelf: 'center' }}>
+          {谈判错}
+        </span>
+      )}
+    </div>
+  );
+
+  /* ─── 渲染 ─── */
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      {/* Backdrop */}
       <div
         className="absolute inset-0"
-        style={{ background: 'rgba(20,20,24,0.5)', backdropFilter: 'blur(8px)' }}
+        style={{ background: 'rgba(20,20,24,0.55)', backdropFilter: 'blur(10px)' }}
       />
 
       <div
-        className="relative rounded-2xl w-full flex flex-col overflow-hidden"
+        className="relative w-full flex flex-col overflow-hidden"
         style={{
-          maxWidth: '600px',
+          maxWidth: '620px',
           maxHeight: '88vh',
-          background: '#FFFFFF',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.07)',
+          background: 聊天色.白,
+          borderRadius: 18,
+          boxShadow: '0 32px 80px rgba(0,0,0,0.20), 0 0 0 1px rgba(0,0,0,0.06)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Header ── */}
-        <div
-          className="shrink-0 px-5 py-4 flex items-center justify-between"
-          style={{ borderBottom: '1px solid #F0F0EE', background: '#FAFAF8' }}
-        >
-          <div className="flex items-center gap-3">
-            {/* talkto.me wordmark pill */}
-            <div
-              className="flex items-center gap-2 px-3 py-2 rounded-xl relative shrink-0"
-              style={{ background: '#141414', boxShadow: '0 2px 10px rgba(0,0,0,0.18)' }}
-            >
-              <span
+        <ChatHeader
+          头像={{ 首字母: post.author.avatarInitials, 颜色: post.author.avatarColor }}
+          名字={`Agent 谈判 · ${post.author.displayName}`}
+          副标题={post.title.length > 50 ? post.title.slice(0, 50) + '…' : post.title}
+          状态={stage === 'active' ? 'online' : null}
+          左侧="close"
+          on左侧点击={onClose}
+          右侧={进度chip}
+        />
+
+        {/* 错误：对方未绑 agent */}
+        {对方未绑agent && (
+          <div
+            style={{
+              flexShrink: 0,
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#FFF7ED',
+              borderBottom: `1px solid ${聊天色.描边浅}`,
+            }}
+          >
+            <AlertCircle style={{ width: 14, height: 14, color: '#C2410C' }} />
+            <span style={{ fontSize: 12, color: '#9A3412' }}>
+              对方还没绑定 Agent，无法发起谈判
+            </span>
+          </div>
+        )}
+
+        {/* Briefing 阶段：保留指令录入 UI（精简后） */}
+        {stage === 'briefing' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 20, background: 聊天色.灰底 }}>
+              <div
                 style={{
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  color: 'white',
-                  letterSpacing: '-0.04em',
-                  fontFamily: 'ui-monospace, monospace',
-                  lineHeight: 1,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                  padding: 14,
+                  borderRadius: 14,
+                  background: 聊天色.白,
+                  border: `1px solid ${聊天色.描边}`,
                 }}
               >
-                talkto.me
-              </span>
-              {stage === 'active' && (
-                <span
-                  className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse"
-                  style={{ backgroundColor: '#22C55E', border: '2px solid white' }}
-                />
-              )}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#141414' }}>
-                  Agent 托管
-                </span>
-                {stage === 'briefing' && (
-                  <span
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                    style={{ fontSize: '10px', fontWeight: 600, color: '#888882', background: '#F0F0EE' }}
-                  >
-                    待指令
-                  </span>
-                )}
-                {stage === 'active' && (
-                  <span
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                    style={{ fontSize: '10px', fontWeight: 700, color: '#16A34A', background: 'rgba(34,197,94,0.1)', letterSpacing: '0.04em' }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    托管中
-                  </span>
-                )}
-                {stage === 'resolved' && outcome === 'accepted' && (
-                  <span
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                    style={{ fontSize: '10px', fontWeight: 700, color: '#16A34A', background: 'rgba(34,197,94,0.1)' }}
-                  >
-                    <Check style={{ width: '10px', height: '10px' }} />
-                    已完成
-                  </span>
-                )}
-              </div>
-              <p style={{ fontSize: '11px', color: '#999994', marginTop: '1px' }}>
-                {post.author.displayName} · {post.title.length > 40 ? post.title.slice(0, 40) + '…' : post.title}
-              </p>
-            </div>
-          </div>
-
-          {/* A2A badge + close */}
-          <div className="flex items-center gap-2">
-            <div
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-              style={{ background: 'rgba(79,70,229,0.06)', border: '1px solid rgba(79,70,229,0.12)' }}
-            >
-              <Radio style={{ width: '10px', height: '10px', color: '#4F46E5' }} />
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#4F46E5' }}>A2A 协议</span>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
-              style={{ color: '#999994', background: '#F0F0EE' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#EBEBEA'; (e.currentTarget as HTMLButtonElement).style.color = '#141414'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#F0F0EE'; (e.currentTarget as HTMLButtonElement).style.color = '#999994'; }}
-            >
-              <X style={{ width: '14px', height: '14px' }} />
-            </button>
-          </div>
-        </div>
-
-        {/* ── Briefing stage ── */}
-        {stage === 'briefing' && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ scrollbarWidth: 'none' }}>
-
-              {/* How it works banner */}
-              <div
-                className="flex items-start gap-3 px-4 py-3 rounded-xl"
-                style={{ background: 'rgba(20,20,20,0.04)', border: '1px solid rgba(0,0,0,0.07)' }}
-              >
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: '#141414' }}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 8,
+                    background: 聊天色.紫渐变,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
                 >
-                  <Bot style={{ width: '13px', height: '13px', color: 'white' }} />
+                  <Bot style={{ width: 14, height: 14, color: 'white' }} />
                 </div>
                 <div>
-                  <p style={{ fontSize: '12px', fontWeight: 700, color: '#141414', marginBottom: '3px' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 聊天色.字深, marginBottom: 4 }}>
                     告诉你的 Agent 需求，剩下的它来搞定
-                  </p>
-                  <p style={{ fontSize: '11px', color: '#888882', lineHeight: 1.6 }}>
-                    Agent 会通过 talkto.me A2A 协议自动联系对方 Agent，
-                    替你谈判、追问细节、过滤无效回复。
-                    需要你拍板时会来找你。
-                  </p>
-                </div>
-              </div>
-
-              {/* Two-agent diagram */}
-              <div
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl"
-                style={{ background: '#F6F5F0', border: '1px solid rgba(0,0,0,0.06)' }}
-              >
-                {/* Your agent */}
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
-                      style={{ backgroundColor: currentUser.avatarColor, fontSize: '10px', fontWeight: 700 }}
-                    >
-                      {currentUser.avatarInitials}
-                    </div>
-                    <div
-                      className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
-                      style={{ background: '#141414', border: '1.5px solid #F6F5F0' }}
-                    >
-                      <Bot style={{ width: '7px', height: '7px', color: 'white' }} />
-                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: '#141414', lineHeight: 1 }}>你的 Agent</p>
-                    <p style={{ fontSize: '10px', color: '#999994', marginTop: '1px' }}>{currentUser.displayName}</p>
-                  </div>
-                </div>
-
-                {/* Arrow + protocol */}
-                <div className="flex-1 flex flex-col items-center gap-0.5">
-                  <div className="flex items-center gap-1.5 w-full">
-                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(20,20,20,0.2), rgba(20,20,20,0.08))' }} />
-                    <div
-                      className="px-2 py-0.5 rounded-full"
-                      style={{ background: '#141414' }}
-                    >
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: 'white', letterSpacing: '0.04em', fontFamily: 'ui-monospace, monospace' }}>A2A</span>
-                    </div>
-                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(20,20,20,0.08), rgba(20,20,20,0.2))' }} />
-                  </div>
-                  <p style={{ fontSize: '9px', color: '#BBBBB6', fontFamily: 'ui-monospace, monospace' }}>talkto.me</p>
-                </div>
-
-                {/* Their agent */}
-                <div className="flex items-center gap-2">
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: '#141414', lineHeight: 1 }}>对方 Agent</p>
-                    <p style={{ fontSize: '10px', color: '#999994', marginTop: '1px' }}>{post.author.displayName}</p>
-                  </div>
-                  <div className="relative">
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
-                      style={{ backgroundColor: post.author.avatarColor, fontSize: '10px', fontWeight: 700 }}
-                    >
-                      {post.author.avatarInitials}
-                    </div>
-                    <div
-                      className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
-                      style={{ background: '#141414', border: '1.5px solid #F6F5F0' }}
-                    >
-                      <Bot style={{ width: '7px', height: '7px', color: 'white' }} />
-                    </div>
+                  <div style={{ fontSize: 12, color: 聊天色.字浅, lineHeight: 1.6 }}>
+                    Agent 会通过 talkto.me A2A 协议自动联系对方 Agent，替你谈判、追问细节、过滤无效回复。需要你拍板时会来找你。
                   </div>
                 </div>
               </div>
 
-              {/* Post reference */}
-              <div className="px-4 py-3 rounded-xl" style={{ background: '#FAFAF8', border: '1px solid #EBEBEA' }}>
-                <p style={{ fontSize: '9px', fontWeight: 700, color: '#BBBBB6', letterSpacing: '0.08em', marginBottom: '6px' }}>
-                  关于
-                </p>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#141414', marginBottom: '4px' }}>
-                  {post.title}
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span style={{ fontSize: '11px', color: '#888882', fontFamily: 'ui-monospace, monospace' }}>{post.author.talktoLink}</span>
-                  {post.compensation && (
-                    <span
-                      className="px-2 py-0.5 rounded-md"
-                      style={{ fontSize: '11px', fontWeight: 600, color: '#141414', background: '#F0F0EE' }}
-                    >
-                      {post.compensation}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Instruction input */}
-              <div>
+              <div style={{ marginTop: 16 }}>
                 <label
-                  className="block mb-1.5"
-                  style={{ fontSize: '12px', fontWeight: 700, color: '#141414' }}
+                  style={{
+                    display: 'block',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: 聊天色.字深,
+                    marginBottom: 4,
+                  }}
                 >
                   你的需求 · 告诉 Agent 怎么做
                 </label>
-                <p style={{ fontSize: '11px', color: '#999994', marginBottom: '8px', lineHeight: 1.5 }}>
-                  Agent 会自动托管整个沟通过程，在关键节点找你确认。
-                </p>
                 <textarea
                   value={instruction}
                   onChange={(e) => setInstruction(e.target.value)}
-                  placeholder={t('agent.negotiate.placeholder')}
+                  placeholder={t('agent.negotiate.placeholder') || '比如：请压价到标价的 90%，问清成色和是否可包邮…'}
                   rows={3}
                   autoFocus
-                  className="w-full px-3.5 py-3 rounded-xl outline-none resize-none transition-all"
                   style={{
-                    fontSize: '13px',
-                    lineHeight: '1.65',
-                    color: '#141414',
-                    background: 'white',
-                    border: '1px solid #E8E8E4',
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: 12,
+                    outline: 'none',
+                    resize: 'none',
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                    color: 聊天色.字深,
+                    background: 聊天色.白,
+                    border: `1px solid ${聊天色.描边}`,
+                    fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#141414'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(20,20,20,0.06)'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = '#E8E8E4'; e.currentTarget.style.boxShadow = 'none'; }}
                 />
-                {/* Quick suggestions */}
-                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {suggestions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setInstruction(s)}
-                      className="px-2.5 py-1.5 rounded-full transition-all text-left"
-                      style={{ fontSize: '11px', color: '#666660', background: '#F4F4F2', border: '1px solid transparent' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#EBEBEA'; (e.currentTarget as HTMLButtonElement).style.color = '#141414'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#F4F4F2'; (e.currentTarget as HTMLButtonElement).style.color = '#666660'; }}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
-            {/* Footer */}
             <div
-              className="shrink-0 px-5 py-4 flex items-center justify-between gap-3"
-              style={{ borderTop: '1px solid #F0F0EE', background: '#FAFAF8' }}
+              style={{
+                flexShrink: 0,
+                padding: '14px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                borderTop: `1px solid ${聊天色.描边浅}`,
+                background: 聊天色.白,
+              }}
             >
-              <p style={{ fontSize: '11px', color: '#BBBBB6', lineHeight: 1.55 }}>
+              <span style={{ fontSize: 11, color: 聊天色.字超浅 }}>
                 发送后 Agent 立即接管，全程自动沟通。
-              </p>
+              </span>
               <button
-                onClick={() => { if (instruction.trim()) setStage('active'); }}
-                disabled={!instruction.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={() => {
+                  if (!真对话可用) return;
+                  setStage('active');
+                }}
+                disabled={!真对话可用 || !instruction.trim()}
                 style={{
-                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '10px 16px',
+                  borderRadius: 12,
+                  border: 'none',
+                  fontSize: 13,
                   fontWeight: 700,
                   color: 'white',
-                  background: '#141414',
-                  boxShadow: instruction.trim() ? '0 4px 14px rgba(0,0,0,0.22)' : 'none',
-                  fontFamily: 'ui-monospace, monospace',
-                  letterSpacing: '-0.02em',
+                  background: 真对话可用 && instruction.trim() ? 聊天色.紫渐变 : '#E8E8E4',
+                  cursor: 真对话可用 && instruction.trim() ? 'pointer' : 'not-allowed',
                 }}
               >
-                <Sparkles style={{ width: '14px', height: '14px' }} />
+                <Sparkles style={{ width: 13, height: 13 }} />
                 启动 Agent
               </button>
             </div>
           </div>
         )}
 
-        {/* ── Active / Resolved stage ── */}
-        {(stage === 'active' || stage === 'resolved') && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Instruction pill */}
-            <div
-              className="shrink-0 px-5 py-2.5 flex items-center gap-2"
-              style={{ background: 'rgba(20,20,20,0.03)', borderBottom: '1px solid #F0F0EE' }}
-            >
+        {/* Active 阶段：真对话 + 谈判按钮 + 输入区 */}
+        {stage === 'active' && (
+          <>
+            {初始化错 && (
               <div
-                className="flex items-center gap-1 shrink-0 px-1.5 py-0.5 rounded-md"
-                style={{ background: '#141414' }}
+                style={{
+                  padding: '10px 16px',
+                  fontSize: 12,
+                  color: '#B91C1C',
+                  background: '#FEF2F2',
+                  borderBottom: `1px solid ${聊天色.描边浅}`,
+                }}
               >
-                <Bot style={{ width: '9px', height: '9px', color: 'white' }} />
-                <span style={{ fontSize: '9px', fontWeight: 700, color: 'white', letterSpacing: '0.04em' }}>指令</span>
+                初始化失败：{初始化错}
               </div>
-              <span
-                className="truncate px-2.5 py-0.5 rounded-full"
-                style={{ fontSize: '11px', fontWeight: 500, color: '#444440', background: '#EBEBEA', maxWidth: '380px' }}
-              >
-                {instruction}
-              </span>
+            )}
+
+            <MessageList
+              空状态={!初始化中 && 消息们.length === 0}
+              空文案标题={初始化中 ? 'Agent 接管中…' : '准备就绪'}
+              空文案副={初始化中 ? '正在与对方 Agent 建立通道…' : ''}
+              滚动依赖={[消息们.length, 发送中]}
+              背景={聊天色.灰底}
+            >
+              {节点列表}
+            </MessageList>
+
+            {按钮区}
+
+            {终态 && (
               <div
-                className="ml-auto flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}
+                style={{
+                  padding: '10px 16px',
+                  fontSize: 12,
+                  color: 聊天色.字浅,
+                  background: 'rgba(0,0,0,0.02)',
+                  borderTop: `1px solid ${聊天色.描边浅}`,
+                }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" />
-                <span style={{ fontSize: '9px', fontWeight: 700, color: '#16A34A', letterSpacing: '0.04em' }}>Agent 托管中</span>
+                谈判已结束（{chip信息.文字}）；可继续对话但不能再变更状态。
               </div>
-            </div>
+            )}
 
-            {/* Message stream */}
+            <ChatInput
+              值={输入文本}
+              on值改变={set输入文本}
+              on发送={处理发送}
+              占位={
+                发送错
+                  ? `发送失败：${发送错}`
+                  : 终态
+                    ? '继续对话…'
+                    : '给你的 Agent 一条指令…'
+              }
+              禁用={!对话状态 || 发送中}
+            />
+          </>
+        )}
+
+        {/* 报价 dialog */}
+        {报价dialog开 && (
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center p-4"
+            style={{ background: 'rgba(20,20,24,0.40)' }}
+            onClick={() => set报价dialog开(false)}
+          >
             <div
-              className="flex-1 overflow-y-auto px-5 py-4 space-y-3"
-              style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.08) transparent' }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: 360,
+                background: 'white',
+                borderRadius: 16,
+                padding: 18,
+                boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
+              }}
             >
-              {messages.slice(0, visibleCount).map((msg) => {
-
-                /* ── System message ── */
-                if (msg.from === 'system') {
-                  return (
-                    <div key={msg.id} className="flex items-center gap-3 py-0.5">
-                      <div className="flex-1 h-px" style={{ background: '#F0F0EE' }} />
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Radio style={{ width: '9px', height: '9px', color: '#BBBBB6' }} />
-                        <span style={{ fontSize: '10px', color: '#BBBBB6' }}>{msg.content}</span>
-                      </div>
-                      <div className="flex-1 h-px" style={{ background: '#F0F0EE' }} />
-                    </div>
-                  );
-                }
-
-                /* ── Decision card ── */
-                if (msg.from === 'decision') {
-                  return (
-                    <div key={msg.id} className="mt-1">
-                      <div
-                        className="rounded-xl p-4"
-                        style={{ background: '#FFFBF5', border: '2px solid #FB923C' }}
-                      >
-                        <div className="flex items-center gap-2 mb-3">
-                          <div
-                            className="w-6 h-6 rounded-lg flex items-center justify-center"
-                            style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
-                          >
-                            <Zap style={{ width: '12px', height: '12px', color: 'white' }} />
-                          </div>
-                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#C2410C', letterSpacing: '0.06em' }}>
-                            {t('agent.negotiate.status.decision').toUpperCase()}
-                          </span>
-                          <span style={{ fontSize: '10px', color: '#BBBBB6', marginLeft: 'auto' }}>{msg.timestamp}</span>
-                        </div>
-                        <p style={{ fontSize: '13px', color: '#1C1C1C', lineHeight: '1.65', marginBottom: '16px' }}>
-                          {msg.content}
-                        </p>
-
-                        {outcome === null && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                              onClick={() => {
-                                // Build and save the match
-                                const newMatch: Match = {
-                                  id: `match-${Date.now()}`,
-                                  postId: post.id,
-                                  postTitle: post.title,
-                                  postCategory: post.category,
-                                  postCompensation: post.compensation,
-                                  postLocation: post.location,
-                                  partnerUsername: post.author.username,
-                                  partnerDisplayName: post.author.displayName,
-                                  partnerInitials: post.author.avatarInitials,
-                                  partnerAvatarColor: post.author.avatarColor,
-                                  partnerTalktoLink: post.author.talktoLink,
-                                  partnerVerified: post.author.verified,
-                                  myInstruction: instruction,
-                                  agreedTerms: messages.find((m) => m.from === 'decision')?.content ?? 'Terms agreed via A2A protocol.',
-                                  matchedAt: new Date().toISOString(),
-                                  status: 'active',
-                                  sessionId: `a2a_${Math.random().toString(36).slice(2, 8)}`,
-                                };
-                                addMatch(newMatch);
-                                setMatchSaved(true);
-                                setOutcome('accepted');
-                                setStage('resolved');
-                              }}
-                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all"
-                              style={{ fontSize: '12px', fontWeight: 600, color: 'white', background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', boxShadow: '0 2px 8px rgba(79,70,229,0.25)' }}
-                            >
-                              <Check style={{ width: '13px', height: '13px' }} />
-                              {t('agent.negotiate.accept')}
-                            </button>
-                            <button
-                              onClick={() => { setOutcome('drafting'); setStage('resolved'); }}
-                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all"
-                              style={{ fontSize: '12px', fontWeight: 500, color: '#4F46E5', background: 'rgba(79,70,229,0.06)', border: '1px solid rgba(79,70,229,0.2)' }}
-                            >
-                              <Bot style={{ width: '13px', height: '13px' }} />
-                              {t('agent.negotiate.draftReply')}
-                            </button>
-                            <button
-                              onClick={() => { setOutcome('declined'); setStage('resolved'); }}
-                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all"
-                              style={{ fontSize: '12px', color: '#888882', background: 'white', border: '1px solid #E8E8E4' }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C8C8C4'; (e.currentTarget as HTMLButtonElement).style.color = '#444440'; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E8E8E4'; (e.currentTarget as HTMLButtonElement).style.color = '#888882'; }}
-                            >
-                              {t('agent.negotiate.decline')}
-                            </button>
-                          </div>
-                        )}
-                        {outcome === 'accepted' && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ fontSize: '12px', fontWeight: 600, color: '#16A34A', background: 'rgba(34,197,94,0.08)' }}>
-                            <Check style={{ width: '13px', height: '13px' }} />
-                            {t('agent.negotiate.result.accepted')}
-                          </div>
-                        )}
-                        {outcome === 'drafting' && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ fontSize: '12px', fontWeight: 500, color: '#2563EB', background: 'rgba(37,99,235,0.06)' }}>
-                            <Bot style={{ width: '13px', height: '13px' }} />
-                            {t('agent.negotiate.result.drafting')}
-                          </div>
-                        )}
-                        {outcome === 'declined' && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ fontSize: '12px', color: '#888882', background: '#F6F5F0' }}>
-                            {t('agent.negotiate.result.declined')}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                }
-
-                /* ── Agent chat bubble ── */
-                const isYours = msg.from === 'your-agent';
-                return (
-                  <div key={msg.id} className={`flex items-end gap-2.5 ${isYours ? 'flex-row-reverse' : ''}`}>
-                    {/* Avatar */}
-                    <div
-                      className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-white"
-                      style={{
-                        backgroundColor: isYours ? '#141414' : post.author.avatarColor,
-                        fontSize: '9px',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {isYours ? currentUser.avatarInitials : post.author.avatarInitials}
-                    </div>
-
-                    <div className={`flex flex-col gap-1 max-w-[76%] ${isYours ? 'items-end' : 'items-start'}`}>
-                      {/* Name + time */}
-                      <div className={`flex items-center gap-2 ${isYours ? 'flex-row-reverse' : ''}`}>
-                        <span style={{ fontSize: '10px', fontWeight: 500, color: '#999994' }}>
-                          {isYours ? `${currentUser.displayName} 的 Agent` : `${post.author.displayName} 的 Agent`}
-                        </span>
-                        <span style={{ fontSize: '10px', color: '#D8D8D4' }}>{msg.timestamp}</span>
-                      </div>
-
-                      {/* Bubble */}
-                      {msg.isProcessing ? (
-                        <div
-                          className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl"
-                          style={{
-                            background: '#F6F5F0',
-                            border: '1px solid #EBEBEA',
-                            borderRadius: isYours ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
-                          }}
-                        >
-                          {[0, 1, 2].map((i) => (
-                            <div
-                              key={i}
-                              className="w-1.5 h-1.5 rounded-full animate-bounce"
-                              style={{ background: '#BBBBB6', animationDelay: `${i * 150}ms` }}
-                            />
-                          ))}
-                          <span style={{ fontSize: '12px', color: '#BBBBB6', marginLeft: '4px' }}>{msg.content}</span>
-                        </div>
-                      ) : (
-                        <div
-                          className="px-3.5 py-2.5"
-                          style={
-                            isYours
-                              ? {
-                                  background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-                                  color: 'white',
-                                  borderRadius: '14px 14px 2px 14px',
-                                  boxShadow: '0 2px 10px rgba(79,70,229,0.2)',
-                                  fontSize: '13px',
-                                  lineHeight: '1.65',
-                                }
-                              : {
-                                  background: 'white',
-                                  color: '#1C1C1C',
-                                  border: '1px solid #E8E8E4',
-                                  borderRadius: '14px 14px 14px 2px',
-                                  fontSize: '13px',
-                                  lineHeight: '1.65',
-                                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                                }
-                          }
-                        >
-                          {msg.content}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Typing indicator while loading next */}
-              {stage === 'active' && visibleCount < messages.length && (
-                <div className="flex items-end gap-2.5">
-                  <div
-                    className="w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0"
-                    style={{ backgroundColor: post.author.avatarColor, fontSize: '9px', fontWeight: 700 }}
-                  >
-                    {post.author.avatarInitials}
-                  </div>
-                  <div
-                    className="flex items-center gap-1 px-3.5 py-2.5 rounded-2xl"
-                    style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: '14px 14px 14px 2px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                  >
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full animate-bounce"
-                        style={{ background: '#BBBBB6', animationDelay: `${i * 150}ms` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Footer */}
-            <div
-              className="shrink-0 px-5 py-3 flex items-center justify-between gap-3"
-              style={{ borderTop: '1px solid #F0F0EE', background: outcome === 'accepted' ? 'rgba(79,70,229,0.03)' : '#FAFAF8' }}
-            >
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: stage === 'active' ? '#22C55E' : outcome === 'accepted' ? '#4F46E5' : '#BBBBB6' }} />
-                <span style={{ fontSize: '11px', color: '#888882' }}>
-                  {stage === 'active'
-                    ? `Agent 正在沟通中 · ${visibleCount} / ${messages.length} 条消息`
-                    : outcome === 'accepted'
-                    ? '已保存至 Matches'
-                    : outcome === 'declined'
-                    ? '已拒绝'
-                    : '等待你的决定'}
-                </span>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: 聊天色.字深 }}>
+                提议成交价
               </div>
-              <div className="flex items-center gap-2">
-                {outcome === 'accepted' && matchSaved && (
-                  <button
-                    onClick={() => { onClose(); navigate('/matches'); }}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all"
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: 'white',
-                      background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
-                      boxShadow: '0 2px 10px rgba(79,70,229,0.3)',
-                    }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 18px rgba(79,70,229,0.45)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 10px rgba(79,70,229,0.3)'; }}
-                  >
-                    <Handshake style={{ width: '13px', height: '13px' }} />
-                    在匹配里查看
-                    <ArrowUpRight style={{ width: '12px', height: '12px' }} />
-                  </button>
-                )}
+              <div style={{ fontSize: 12, color: 聊天色.字浅, marginBottom: 12 }}>
+                请填写成交价（人民币元）。提交后会标记为「已达成」。
+              </div>
+              <input
+                type="number"
+                inputMode="numeric"
+                value={报价输入}
+                onChange={(e) => set报价输入(e.target.value)}
+                placeholder="例如 5000"
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: 10,
+                  border: `1px solid ${聊天色.描边}`,
+                  fontSize: 14,
+                  outline: 'none',
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
                 <button
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-xl transition-all"
-                  style={{ fontSize: '12px', fontWeight: 500, color: '#666660', background: 'white', border: '1px solid #E8E8E4' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#C8C8C4'; (e.currentTarget as HTMLButtonElement).style.color = '#141414'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E8E8E4'; (e.currentTarget as HTMLButtonElement).style.color = '#666660'; }}
+                  onClick={() => set报价dialog开(false)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    fontSize: 12,
+                    color: 聊天色.字中,
+                    background: 'white',
+                    border: `1px solid ${聊天色.描边}`,
+                    cursor: 'pointer',
+                  }}
                 >
-                  关闭
+                  取消
+                </button>
+                <button
+                  onClick={处理提交报价}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    border: 'none',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 聊天色.紫渐变,
+                    cursor: 'pointer',
+                  }}
+                >
+                  提交
                 </button>
               </div>
             </div>
