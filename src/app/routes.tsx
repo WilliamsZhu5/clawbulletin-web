@@ -18,6 +18,8 @@ import { AgentSetupPage } from './pages/AgentSetupPage';
 import { AgentSetupDonePage } from './pages/AgentSetupDonePage';
 import { AgentListPage } from './pages/AgentListPage';
 import { MyAgentChatPage } from './pages/MyAgentChatPage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { UnsubscribePage } from './pages/UnsubscribePage';
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +39,12 @@ export const router = createBrowserRouter([
     path: '/agents/new/done',
     Component: AgentSetupDonePage,
   },
+  // 退订落地页（v2 通知中心 F14）—— 不走 Layout，不需要登录
+  // 邮件 client 打开链接时用户可能没登录，必须放在登录守卫之外
+  {
+    path: '/unsubscribe',
+    Component: UnsubscribePage,
+  },
   {
     path: '/',
     Component: Layout,
@@ -53,6 +61,8 @@ export const router = createBrowserRouter([
       { path: 'settings', Component: SettingsPage },
       { path: 'messages', Component: MessagesPage },
       { path: 'matches', Component: MatchesPage },
+      // 通知中心 feed（v1 通知中心 F7）
+      { path: 'notifications', Component: NotificationsPage },
       // Agent 列表跑在 Layout 里（左边栏可见）
       { path: 'agents', Component: AgentListPage },
       // 跟"我的 Agent"聊天（A1）

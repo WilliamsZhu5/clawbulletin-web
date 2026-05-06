@@ -1,6 +1,7 @@
 // 消息总页 — 真后端 conversations + 谈判语义
 // 左侧：列我的对话；右侧：选中对话的消息流（用统一 chat 组件）
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 import { Search, Bot, AlertCircle } from 'lucide-react';
 import { currentUser } from '../data/mockData';
 import {
@@ -84,6 +85,10 @@ export function MessagesPage() {
   const 我方头像Initials = 当前用户对象?.avatar_initials || currentUser.avatarInitials;
   const 我方显示名 = 当前用户对象?.display_name || currentUser.displayName;
 
+  // v1 通知中心 F11：进入页面如果带 ?conv=<id> query，首次拉取后选中该对话
+  const [searchParams] = useSearchParams();
+  const 初始选中id = searchParams.get('conv');
+
   /* ─── 拉对话列表（首次） ─── */
   const 已拉ref = useRef(false);
   useEffect(() => {
@@ -101,7 +106,9 @@ export function MessagesPage() {
         if (取消) return;
         set对话们(list);
         if (list.length > 0) {
-          set选中id(list[0].id);
+          // F11：query 里指定的 conv id 优先；否则按现有逻辑选第一条
+          const 命中 = 初始选中id && list.some((c) => c.id === 初始选中id) ? 初始选中id : list[0].id;
+          set选中id(命中);
         }
       } catch (e: any) {
         if (!取消) set列错(e?.message || String(e));
@@ -112,7 +119,7 @@ export function MessagesPage() {
     return () => {
       取消 = true;
     };
-  }, []);
+  }, [初始选中id]);
 
   /* ─── 选中变化时拉详情 ─── */
   useEffect(() => {

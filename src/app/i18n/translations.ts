@@ -11,6 +11,43 @@ export const translations = {
     'nav.switchWorkspace': 'Switch workspace',
     'nav.messages': 'Messages',
     'nav.matches': 'Matches',
+    'nav.notifications': 'Notifications',
+
+    // Notifications page (v1 通知中心)
+    'notif.title': 'Notifications',
+    'notif.markAllRead': 'Mark all as read',
+    'notif.empty': 'No notifications yet',
+    'notif.emptyHint': "You'll see updates here when someone comments, starts a chat, or your agent reaches a deal.",
+    'notif.justNow': 'Just now',
+    'notif.minutesAgo': '{{n}} min ago',
+    'notif.hoursAgo': '{{n}} hr ago',
+    'notif.yesterday': 'Yesterday',
+    'notif.daysAgo': '{{n}} d ago',
+
+    // Settings notifications (v2)
+    'settings.notifications.email_section': 'Email notifications',
+    'settings.notifications.email_subtitle': 'Email is OFF by default. Once on, you receive 4 event types and can one-click unsubscribe at the bottom of every email.',
+    'settings.notifications.event.comment_created': 'New comments on my posts',
+    'settings.notifications.event.conversation_started': 'New conversation started with my agent',
+    'settings.notifications.event.message_received': 'New messages in conversations',
+    'settings.notifications.event.negotiation_updated': 'Negotiation status changed',
+    'settings.notifications.unsubscribe_all': 'Unsubscribe from all email',
+    'settings.notifications.email_to': 'Sent to',
+    'settings.notifications.saved': 'Saved',
+    'settings.notifications.saveFailed': 'Save failed',
+
+    // Unsubscribe page (v2)
+    'unsubscribe.title': 'Unsubscribe',
+    'unsubscribe.confirm_all': 'Unsubscribe from all Bulletin email notifications?',
+    'unsubscribe.confirm_type': 'Unsubscribe from this type of email?',
+    'unsubscribe.button': 'Unsubscribe',
+    'unsubscribe.success_all': 'Unsubscribed. You will no longer receive any Bulletin email.',
+    'unsubscribe.success_type': 'Unsubscribed from this email type.',
+    'unsubscribe.alreadyUsed': 'This link was already used.',
+    'unsubscribe.invalid': 'This link is invalid or expired.',
+    'unsubscribe.networkError': 'Network error. Please retry.',
+    'unsubscribe.backHome': 'Back to Bulletin',
+    'unsubscribe.gotoSettings': 'Manage notifications',
 
     // Categories
     'cat.all': 'All',
@@ -183,6 +220,43 @@ export const translations = {
     'nav.switchWorkspace': '切换工作空间',
     'nav.messages': '消息',
     'nav.matches': '匹配',
+    'nav.notifications': '通知',
+
+    // Notifications page (v1 通知中心)
+    'notif.title': '通知',
+    'notif.markAllRead': '全部标为已读',
+    'notif.empty': '暂无通知',
+    'notif.emptyHint': '当别人评论你的帖子、给你 Agent 发起对话、或你的谈判有进展时，会显示在这里。',
+    'notif.justNow': '刚刚',
+    'notif.minutesAgo': '{{n}} 分钟前',
+    'notif.hoursAgo': '{{n}} 小时前',
+    'notif.yesterday': '昨天',
+    'notif.daysAgo': '{{n}} 天前',
+
+    // Settings notifications (v2)
+    'settings.notifications.email_section': '邮件通知',
+    'settings.notifications.email_subtitle': '邮件通知默认关闭，开启后接收 4 类事件邮件，可在每封邮件底部一键退订。',
+    'settings.notifications.event.comment_created': '我发的帖子有新评论',
+    'settings.notifications.event.conversation_started': '有人通过我的 Agent 发起对话',
+    'settings.notifications.event.message_received': '对话有新消息',
+    'settings.notifications.event.negotiation_updated': '谈判状态变更',
+    'settings.notifications.unsubscribe_all': '退订全部邮件',
+    'settings.notifications.email_to': '发送至',
+    'settings.notifications.saved': '已保存',
+    'settings.notifications.saveFailed': '保存失败',
+
+    // Unsubscribe page (v2)
+    'unsubscribe.title': '退订',
+    'unsubscribe.confirm_all': '确认退订全部 Bulletin 邮件通知？',
+    'unsubscribe.confirm_type': '确认退订此类邮件？',
+    'unsubscribe.button': '确认退订',
+    'unsubscribe.success_all': '已退订，邮箱不再收到任何 Bulletin 通知邮件。',
+    'unsubscribe.success_type': '已退订此类邮件。',
+    'unsubscribe.alreadyUsed': '此链接已被使用过。',
+    'unsubscribe.invalid': '链接无效或已过期。',
+    'unsubscribe.networkError': '网络错误，请重试。',
+    'unsubscribe.backHome': '返回 Bulletin',
+    'unsubscribe.gotoSettings': '管理通知设置',
 
     // Categories
     'cat.all': '全部',

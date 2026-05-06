@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Settings,
   User,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { currentUser } from '../data/mockData';
+import { 拿用户, 拿通知偏好, 更新通知偏好, type 通知偏好 } from '../data/api';
 
 type SettingsSection = 'profile' | 'notifications' | 'privacy' | 'talkto' | 'integrations';
 
@@ -55,11 +56,65 @@ export function SettingsPage() {
   const [username, setUsername] = useState(currentUser.username);
   const [saved, setSaved] = useState(false);
 
-  // Notification state
-  const [notifEmail, setNotifEmail] = useState(true);
+  // Notification state — IM / digest 仍为前端 mock（后端未实现）
+  // 邮件偏好接通真后端：4 类事件 × 邮件 bool + 退订全部（v2 通知中心 F12）
   const [notifIM, setNotifIM] = useState(true);
   const [notifDigest, setNotifDigest] = useState(false);
   const [digestFreq, setDigestFreq] = useState<'daily' | 'weekly'>('daily');
+
+  // 后端 v2 通知偏好
+  const [偏好, set偏好] = useState<通知偏好 | null>(null);
+  const [偏好加载中, set偏好加载中] = useState(false);
+  const [偏好错, set偏好错] = useState<string | null>(null);
+  const [偏好保存中, set偏好保存中] = useState<string | null>(null); // 当前在保存哪个 key（防并发）
+  const [偏好保存提示, set偏好保存提示] = useState<string | null>(null); // 已保存 / 失败提示
+
+  // 进入通知 tab 拉偏好；防 StrictMode 双调用
+  useEffect(() => {
+    if (activeSection !== 'notifications') return;
+    if (偏好) return;
+    set偏好加载中(true);
+    set偏好错(null);
+    拿通知偏好()
+      .then((p) => set偏好(p))
+      .catch((e) => set偏好错(e?.message || String(e)))
+      .finally(() => set偏好加载中(false));
+  }, [activeSection, 偏好]);
+
+  // 切换某个事件的邮件开关 —— 先调 API 成功后再改 local state（不做乐观更新）
+  const 切换事件邮件 = async (事件key: keyof 通知偏好['邮件']) => {
+    if (!偏好 || 偏好保存中) return;
+    const 新值 = !偏好.邮件[事件key];
+    set偏好保存中(事件key);
+    set偏好保存提示(null);
+    try {
+      const r = await 更新通知偏好({ 邮件: { [事件key]: 新值 } as Partial<通知偏好['邮件']> });
+      set偏好(r);
+      set偏好保存提示('已保存');
+      setTimeout(() => set偏好保存提示(null), 1800);
+    } catch (e: any) {
+      set偏好保存提示(`保存失败：${e?.message || e}`);
+    } finally {
+      set偏好保存中(null);
+    }
+  };
+
+  const 切换全部退订 = async () => {
+    if (!偏好 || 偏好保存中) return;
+    const 新值 = !偏好.退订全部;
+    set偏好保存中('__退订全部__');
+    set偏好保存提示(null);
+    try {
+      const r = await 更新通知偏好({ 退订全部: 新值 });
+      set偏好(r);
+      set偏好保存提示('已保存');
+      setTimeout(() => set偏好保存提示(null), 1800);
+    } catch (e: any) {
+      set偏好保存提示(`保存失败：${e?.message || e}`);
+    } finally {
+      set偏好保存中(null);
+    }
+  };
 
   // Privacy state
   const [profilePublic, setProfilePublic] = useState(true);
@@ -372,99 +427,189 @@ export function SettingsPage() {
             </div>
           )}
 
-          {/* Notifications */}
+          {/* Notifications —— v2 通知中心 F12：邮件偏好接通真后端 */}
           {activeSection === 'notifications' && (
             <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6">
-              <h2 className="text-[#141414] mb-5" style={{ fontSize: '15px', fontWeight: 600 }}>
-                通知设置
-              </h2>
-
-              <div className="flex flex-col gap-5">
-                <div>
-                  <p className="text-[#999994] mb-3 uppercase tracking-wider" style={{ fontSize: '10px', fontWeight: 600 }}>
-                    渠道
-                  </p>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <Mail className="w-4 h-4 text-[#999994]" strokeWidth={1.75} />
-                        <div>
-                          <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                            邮件通知
-                          </p>
-                          <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                            活动摘要、新回复、talkto.me 消息
-                          </p>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={notifEmail} onChange={setNotifEmail} />
-                    </div>
-
-                    <div className="h-px bg-[#F4F4F2]" />
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <Smartphone className="w-4 h-4 text-[#999994]" strokeWidth={1.75} />
-                        <div>
-                          <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                            即时通讯通知
-                          </p>
-                          <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                            通过你绑定的即时通讯渠道转发（Telegram / WhatsApp）
-                          </p>
-                        </div>
-                      </div>
-                      <ToggleSwitch enabled={notifIM} onChange={setNotifIM} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-[#F4F4F2]" />
-
-                <div>
-                  <p className="text-[#999994] mb-3 uppercase tracking-wider" style={{ fontSize: '10px', fontWeight: 600 }}>
-                    摘要
-                  </p>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
-                        接收活动摘要
-                      </p>
-                      <p className="text-[#999994]" style={{ fontSize: '11px' }}>
-                        把所有活动汇总后发送，而不是逐条通知
-                      </p>
-                    </div>
-                    <ToggleSwitch enabled={notifDigest} onChange={setNotifDigest} />
-                  </div>
-
-                  {notifDigest && (
-                    <div className="flex items-center gap-2 mt-2">
-                      {(['daily', 'weekly'] as const).map((freq) => (
-                        <button
-                          key={freq}
-                          onClick={() => setDigestFreq(freq)}
-                          className={`px-3.5 py-1.5 rounded-full border transition-all ${
-                            digestFreq === freq
-                              ? 'border-[#141414] bg-[#141414] text-white'
-                              : 'border-[#E8E8E4] text-[#666660] hover:border-[#C8C8C4] hover:text-[#141414]'
-                          }`}
-                          style={{ fontSize: '12px' }}
-                        >
-                          {freq === 'daily' ? '每日' : '每周'}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-[#141414]" style={{ fontSize: '15px', fontWeight: 600 }}>
+                  通知设置
+                </h2>
+                {偏好保存提示 && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: 偏好保存提示.includes('失败') ? '#B91C1C' : '#16A34A',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {偏好保存提示}
+                  </span>
+                )}
               </div>
 
-              <div className="flex justify-end mt-6 pt-4 border-t border-[#F4F4F2]">
-                <button
-                  className="px-4 py-2 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors"
-                  style={{ fontSize: '13px', fontWeight: 500 }}
+              {/* 邮件区块 */}
+              <div className="mt-4">
+                <p
+                  className="text-[#999994] mb-2 uppercase tracking-wider"
+                  style={{ fontSize: '10px', fontWeight: 600 }}
                 >
-                  保存设置
-                </button>
+                  邮件通知
+                </p>
+                <p
+                  className="text-[#666660] mb-4"
+                  style={{ fontSize: '12px', lineHeight: 1.55 }}
+                >
+                  邮件通知默认关闭，开启后接收 4 类事件邮件，可在每封邮件底部一键退订。
+                </p>
+
+                {/* 当前邮箱展示 */}
+                {(() => {
+                  const u = 拿用户();
+                  if (!u?.email) return null;
+                  return (
+                    <div
+                      className="flex items-center gap-2 px-3 py-2.5 mb-4 rounded-xl"
+                      style={{ background: '#F8F8F6', border: '1px solid #EBEBEA' }}
+                    >
+                      <Mail className="w-3.5 h-3.5 text-[#999994]" strokeWidth={1.75} />
+                      <span style={{ fontSize: 11, color: '#999994' }}>发送至</span>
+                      <span style={{ fontSize: 12, color: '#141414', fontWeight: 500 }}>{u.email}</span>
+                    </div>
+                  );
+                })()}
+
+                {偏好加载中 && (
+                  <p style={{ fontSize: 12, color: '#999994' }}>加载偏好中…</p>
+                )}
+                {偏好错 && !偏好加载中 && (
+                  <p style={{ fontSize: 12, color: '#B91C1C' }}>加载失败：{偏好错}</p>
+                )}
+
+                {偏好 && !偏好加载中 && (
+                  <div className="flex flex-col gap-3">
+                    {/* 4 类事件 toggle */}
+                    {([
+                      ['comment_created', '我发的帖子有新评论'],
+                      ['conversation_started', '有人通过我的 Agent 发起对话'],
+                      ['message_received', '对话有新消息'],
+                      ['negotiation_updated', '谈判状态变更'],
+                    ] as const).map(([key, label], i) => {
+                      const enabled = !!偏好.邮件[key];
+                      const 整体退订 = 偏好.退订全部;
+                      return (
+                        <div key={key}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p
+                                className="text-[#141414]"
+                                style={{ fontSize: '13px', fontWeight: 500, opacity: 整体退订 ? 0.5 : 1 }}
+                              >
+                                {label}
+                              </p>
+                            </div>
+                            <button
+                              disabled={整体退订 || 偏好保存中 === key}
+                              onClick={() => 切换事件邮件(key)}
+                              className={`relative w-9 h-5 rounded-full transition-colors ${
+                                enabled && !整体退订 ? 'bg-[#4F46E5]' : 'bg-[#D0D0CA]'
+                              }`}
+                              style={{
+                                cursor: 整体退订 ? 'not-allowed' : 偏好保存中 === key ? 'wait' : 'pointer',
+                                opacity: 整体退订 ? 0.5 : 1,
+                              }}
+                            >
+                              <span
+                                className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                                  enabled && !整体退订 ? 'translate-x-4' : 'translate-x-0.5'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                          {i < 3 && <div className="h-px bg-[#F4F4F2] mt-3" />}
+                        </div>
+                      );
+                    })}
+
+                    {/* 一键全关 */}
+                    <div className="h-px bg-[#F4F4F2] my-1" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p
+                          className="text-[#141414]"
+                          style={{ fontSize: '13px', fontWeight: 500 }}
+                        >
+                          退订全部邮件
+                        </p>
+                        <p className="text-[#999994] mt-0.5" style={{ fontSize: '11px' }}>
+                          打开后所有 4 类事件都不再发送邮件，覆盖上面的开关
+                        </p>
+                      </div>
+                      <ToggleSwitch
+                        enabled={偏好.退订全部}
+                        onChange={() => 切换全部退订()}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* IM / 摘要区 —— 保留 mock，标 v3 待实现 */}
+              <div className="h-px bg-[#F4F4F2] my-5" />
+
+              <div>
+                <p
+                  className="text-[#999994] mb-2 uppercase tracking-wider"
+                  style={{ fontSize: '10px', fontWeight: 600 }}
+                >
+                  其他渠道
+                </p>
+                <div className="flex items-center justify-between" style={{ opacity: 0.55 }}>
+                  <div className="flex items-center gap-2.5">
+                    <Smartphone className="w-4 h-4 text-[#999994]" strokeWidth={1.75} />
+                    <div>
+                      <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
+                        即时通讯通知
+                      </p>
+                      <p className="text-[#999994]" style={{ fontSize: '11px' }}>
+                        通过你绑定的即时通讯渠道转发（Telegram / WhatsApp） · 即将上线
+                      </p>
+                    </div>
+                  </div>
+                  <ToggleSwitch enabled={notifIM} onChange={setNotifIM} />
+                </div>
+
+                <div className="h-px bg-[#F4F4F2] my-3" />
+
+                <div className="flex items-center justify-between" style={{ opacity: 0.55 }}>
+                  <div>
+                    <p className="text-[#141414]" style={{ fontSize: '13px', fontWeight: 500 }}>
+                      接收活动摘要
+                    </p>
+                    <p className="text-[#999994]" style={{ fontSize: '11px' }}>
+                      把所有活动汇总后发送，而不是逐条通知 · 即将上线
+                    </p>
+                  </div>
+                  <ToggleSwitch enabled={notifDigest} onChange={setNotifDigest} />
+                </div>
+
+                {notifDigest && (
+                  <div className="flex items-center gap-2 mt-3" style={{ opacity: 0.55 }}>
+                    {(['daily', 'weekly'] as const).map((freq) => (
+                      <button
+                        key={freq}
+                        onClick={() => setDigestFreq(freq)}
+                        className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                          digestFreq === freq
+                            ? 'border-[#141414] bg-[#141414] text-white'
+                            : 'border-[#E8E8E4] text-[#666660] hover:border-[#C8C8C4] hover:text-[#141414]'
+                        }`}
+                        style={{ fontSize: '12px' }}
+                      >
+                        {freq === 'daily' ? '每日' : '每周'}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

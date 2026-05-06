@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import {
   Home, TrendingUp, Bookmark, FileText, Settings,
-  Bot, MessageSquare,
+  Bot, MessageSquare, Bell,
   Briefcase, Rocket, ShoppingBag, Wrench, Building2, CalendarDays, LayoutGrid,
   Handshake, MoreHorizontal, User as UserIcon, LogOut,
 } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import type { CategoryId } from '../../data/mockData';
 import type { TranslationKey } from '../../i18n/translations';
 import { useMatches } from '../../context/MatchContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { 已登录, 拿用户, 清登录态 } from '../../data/api';
 import { LogIn } from 'lucide-react';
 import {
@@ -50,6 +51,8 @@ const navItems: Array<{
   // 跟我的 Agent 聊（A1）
   { tKey: 'nav.home',     icon: Bot,           path: '/my-agent', label: '跟 Agent 聊' },
   { tKey: 'nav.messages', icon: MessageSquare,  path: '/messages' },
+  // 通知中心 — Sidebar 铃铛（v1 通知中心 F4）
+  { tKey: 'nav.notifications', icon: Bell, path: '/notifications' },
   { tKey: 'nav.matches',  icon: Handshake,     path: '/matches' },
   { tKey: 'nav.saved',    icon: Bookmark,      path: '/saved' },
   { tKey: 'nav.myPosts',  icon: FileText,      path: '/my-posts' },
@@ -70,6 +73,7 @@ export function Sidebar() {
   const location = useLocation();
   const { t } = useLanguage();
   const { matches } = useMatches();
+  const { 未读数: 通知未读数 } = useNotifications();
   const activeCategory: CategoryId = (() => {
     if (location.pathname.startsWith('/c/')) {
       const cat = location.pathname.split('/c/')[1]?.split('/')[0];
@@ -141,6 +145,23 @@ export function Sidebar() {
                     }}
                   >
                     {activeMatchCount}
+                  </span>
+                )}
+                {/* 通知未读 badge（v1 通知中心 F5）—— 复用 matches badge 红色样式；> 99 显示 99+ */}
+                {item.path === '/notifications' && 通知未读数 > 0 && (
+                  <span
+                    className="ml-auto rounded-full px-1.5 py-0.5"
+                    style={{
+                      fontSize: '9px',
+                      fontWeight: 700,
+                      color: '#FFFFFF',
+                      background: '#DC2626',
+                      minWidth: '16px',
+                      textAlign: 'center',
+                      boxShadow: '0 1px 2px rgba(220,38,38,0.28)',
+                    }}
+                  >
+                    {通知未读数 > 99 ? '99+' : 通知未读数}
                   </span>
                 )}
               </button>

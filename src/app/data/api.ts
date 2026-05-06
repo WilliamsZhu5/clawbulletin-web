@@ -581,3 +581,102 @@ export async function 我的agent_发送(sid: string, 用户消息: string): Pro
     true,
   );
 }
+
+// ============ 通知中心 v1 ============
+// 后端 4 个事件类型；前端单条通知点击根据 type 决定跳转目的
+export type 通知类型 =
+  | "comment_created"
+  | "conversation_started"
+  | "message_received"
+  | "negotiation_updated";
+
+// 后端 payload 字段宽松（视事件类型不同）；下面 type alias 只列常见字段供 TS 提示
+export type 通知payload = {
+  post_id?: string;
+  comment_id?: string;
+  conversation_id?: string;
+  发送方_user_id?: string;
+  发送方_display_name?: string;
+  谈判状态?: string;
+  [k: string]: any;
+};
+
+export type 通知 = {
+  id: string;
+  type: 通知类型 | string;
+  payload: 通知payload;
+  read_at: string | null;
+  created_at: string;
+  文案: string;
+};
+
+export async function 列通知(参数: { 仅未读?: boolean; limit?: number } = {}): Promise<通知[]> {
+  const q = new URLSearchParams();
+  if (参数.仅未读) q.set("未读", "1");
+  if (参数.limit) q.set("limit", String(参数.limit));
+  const qs = q.toString() ? `?${q}` : "";
+  return 请求<通知[]>(`/api/notifications${qs}`, {}, true);
+}
+
+export async function 拿未读通知数(): Promise<number> {
+  // 路径含中文 — encodeURI 转义
+  const 路径 = encodeURI("/api/notifications/未读数");
+  const r = await 请求<{ 未读数: number }>(路径, {}, true);
+  return r.未读数 ?? 0;
+}
+
+export async function 标记通知已读(参数: { ids?: string[]; 全部?: boolean }): Promise<{ 已标记: number }> {
+  const 路径 = encodeURI("/api/notifications/标记已读");
+  return 请求<{ 已标记: number }>(
+    路径,
+    { method: "POST", body: JSON.stringify(参数) },
+    true,
+  );
+}
+
+// ============ 通知偏好 v2 ============
+// 4 类事件 × 邮件 bool；外加 退订全部 总闸
+export type 通知偏好 = {
+  邮件: {
+    comment_created: boolean;
+    conversation_started: boolean;
+    message_received: boolean;
+    negotiation_updated: boolean;
+  };
+  退订全部: boolean;
+};
+
+export type 通知偏好Partial = {
+  邮件?: Partial<通知偏好["邮件"]>;
+  退订全部?: boolean;
+};
+
+export async function 拿通知偏好(): Promise<通知偏好> {
+  const 路径 = encodeURI("/api/通知偏好");
+  return 请求<通知偏好>(路径, {}, true);
+}
+
+export async function 更新通知偏好(参数: 通知偏好Partial): Promise<通知偏好> {
+  const 路径 = encodeURI("/api/通知偏好");
+  return 请求<通知偏好>(
+    路径,
+    { method: "PATCH", body: JSON.stringify(参数) },
+    true,
+  );
+}
+
+// ============ 退订 v2（无登录态） ============
+export type 退订查询结果 = {
+  ok: boolean;
+  type: string | null;
+  全部: boolean;
+  已用过: boolean;
+  用户邮箱_前缀: string | null;
+};
+
+// 注意：退订路由后端只暴露 GET（302 跳转）/ POST（JSON）。
+// 前端落地页用 POST 主动确认；不直接 GET（GET 在邮件 client preview 时已自动触发并把人重定向到这个落地页）。
+export async function 退订(token: string): Promise<退订查询结果> {
+  const 路径 = encodeURI(`/api/退订/${encodeURIComponent(token)}`);
+  return 请求<退订查询结果>(路径, { method: "POST" });
+}
