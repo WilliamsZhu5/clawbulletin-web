@@ -264,8 +264,9 @@ function MatchCard({
 }
 
 export function MatchesPage() {
-  const { matches, updateMatchStatus } = useMatches();
+  const { matches, updateMatchStatus, 标记Match已查看 } = useMatches();
   const { lang } = useLanguage();
+
   const zh = lang === 'zh';
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [activeConversationMatch, setActiveConversationMatch] = useState<Match | null>(null);
@@ -417,8 +418,15 @@ export function MatchesPage() {
                 match={match}
                 zh={zh}
                 onArchive={() => updateMatchStatus(match.id, 'archived')}
-                onOpenConversation={() => setActiveConversationMatch(match)}
-                onOpenPanel={() => setActivePanelMatch(match)}
+                // inbox 点击语义：user 点开某条 row（开 conversation 或 post panel）→ 标记该条已查看 → Sidebar badge -1
+                onOpenConversation={() => {
+                  标记Match已查看(match.id);
+                  setActiveConversationMatch(match);
+                }}
+                onOpenPanel={() => {
+                  标记Match已查看(match.id);
+                  setActivePanelMatch(match);
+                }}
               />
             </div>
           ))}

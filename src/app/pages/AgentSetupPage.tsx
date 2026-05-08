@@ -202,14 +202,17 @@ export function AgentSetupPage() {
             <div className="flex justify-end mt-2">
               <button
                 onClick={() => set步骤('填表单')}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl transition-all"
                 style={{
-                  background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                   color: 'white',
                   fontSize: 13,
                   fontWeight: 600,
-                  boxShadow: '0 4px 16px rgba(79,70,229,0.3)',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
               >
                 下一步
                 <ArrowRight style={{ width: 14, height: 14 }} />
@@ -346,14 +349,17 @@ export function AgentSetupPage() {
             <button
               onClick={处理提交}
               disabled={提交中}
-              className="w-full py-3 rounded-xl flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
               style={{
-                background: 提交中 ? 'rgba(0,0,0,0.06)' : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                background: 提交中 ? 'rgba(0,0,0,0.06)' : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                 color: 提交中 ? '#ADADAA' : 'white',
                 fontSize: 13,
                 fontWeight: 600,
-                boxShadow: 提交中 ? 'none' : '0 4px 18px rgba(79,70,229,0.35)',
+                border: 'none',
+                boxShadow: 提交中 ? 'none' : '0 4px 12px rgba(79, 70, 229, 0.25)',
               }}
+              onMouseEnter={(e) => { if (!提交中) { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; } }}
+              onMouseLeave={(e) => { if (!提交中) { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; } }}
             >
               {提交中 ? '创建中…' : '创建 Agent'}
               {!提交中 && <ArrowRight style={{ width: 14, height: 14 }} />}

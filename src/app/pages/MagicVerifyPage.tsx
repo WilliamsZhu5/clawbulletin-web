@@ -2,6 +2,61 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { 验证magic_link, 列我的agents, 是否合法redirect } from '../data/api';
 
+// Bulletin 三爪痕 logo 动态加载动画 —— 三笔顺次描绘 + 整体 pulse
+// 跟主页 TopBar / LoginPage 顶左品牌 logo 同款 SVG 形状 + 同款黑色笔触
+function BulletinLogoLoader({ size = 64, color = '#0A0A0A' }: { size?: number; color?: string }) {
+  // 三笔的 path 长度估算（用 SVG pathLength 把每条都归一化为 100，方便 stroke-dashoffset 控制）
+  return (
+    <>
+      <svg
+        width={size}
+        height={size * 1.3}
+        viewBox="0 0 20 26"
+        fill="none"
+        style={{ display: 'block' }}
+      >
+        <path
+          d="M2 2 C2.5 7 3.5 13 5.5 21 C6 23 6.5 24.5 7.5 25"
+          stroke={color}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          fill="none"
+          pathLength={100}
+          strokeDasharray="100"
+          style={{ animation: 'bulletinDraw 1.8s ease-in-out infinite', animationDelay: '0s' }}
+        />
+        <path
+          d="M10 2 C10.5 7 11.5 13 13.5 21 C14 23 14.5 24.5 15.5 25"
+          stroke={color}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          fill="none"
+          pathLength={100}
+          strokeDasharray="100"
+          style={{ animation: 'bulletinDraw 1.8s ease-in-out infinite', animationDelay: '0.18s' }}
+        />
+        <path
+          d="M18 4 C18.2 9 18.5 15 19 22"
+          stroke={color}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          fill="none"
+          pathLength={100}
+          strokeDasharray="100"
+          style={{ animation: 'bulletinDraw 1.8s ease-in-out infinite', animationDelay: '0.36s' }}
+        />
+      </svg>
+      <style>{`
+        @keyframes bulletinDraw {
+          0%   { stroke-dashoffset: 100; opacity: 0.15; }
+          50%  { stroke-dashoffset: 0;   opacity: 1;    }
+          100% { stroke-dashoffset: -100; opacity: 0.15; }
+        }
+      `}</style>
+    </>
+  );
+}
+
 // 判断"用户是否已经主动创建过 agent"：
 // 后端会在注册时自动创建一个 type='native' 且 description 含"自动创建"的默认 agent。
 // 我们要识别"是否还有更多用户主动创建的 agent"——
@@ -64,19 +119,18 @@ export function MagicVerifyPage() {
       style={{ background: '#FAFAF7' }}
     >
       <div
-        className="rounded-2xl p-8"
+        className="rounded-2xl flex flex-col items-center justify-center"
         style={{
           background: 'white',
           border: '1px solid rgba(0,0,0,0.08)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.05)',
-          minWidth: '320px',
+          minWidth: '360px',
+          padding: '48px 40px',
         }}
       >
-        {status === 'verifying' && (
-          <p style={{ color: '#444440', textAlign: 'center' }}>验证中…</p>
-        )}
-        {status === 'ok' && (
-          <p style={{ color: '#15803D', textAlign: 'center' }}>✓ 登录成功，跳转中…</p>
+        {(status === 'verifying' || status === 'ok') && (
+          // 跟主页 TopBar / LoginPage 同款 logo（黑色三爪痕），无文字 / 无副文案，仅动画
+          <BulletinLogoLoader size={64} color="#0A0A0A" />
         )}
         {status === 'fail' && (
           <div style={{ textAlign: 'center' }}>

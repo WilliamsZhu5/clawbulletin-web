@@ -159,23 +159,27 @@ export function UnsubscribePage() {
               style={{
                 width: '100%',
                 padding: '12px 20px',
-                background: 紫,
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 12,
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 阶段 === '处理中' ? 'wait' : 'pointer',
-                boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
                 transition: 'all 120ms ease',
               }}
               onMouseEnter={(e) => {
                 if (阶段 !== '处理中') {
-                  (e.currentTarget as HTMLButtonElement).style.background = '#3F37C9';
+                  (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)';
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 紫;
+                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)';
               }}
             >
               {阶段 === '处理中' ? '处理中…' : '确认退订'}
@@ -236,15 +240,18 @@ export function UnsubscribePage() {
               style={{
                 width: '100%',
                 padding: '11px 20px',
-                background: 紫,
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 12,
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(79,70,229,0.22)',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+                transition: 'all 120ms ease',
               }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
             >
               返回 Bulletin
             </button>

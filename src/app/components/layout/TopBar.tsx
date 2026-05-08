@@ -58,7 +58,8 @@ export function TopBar({ onOpenPost, onOpenAgent: _onOpenAgent }: { onOpenPost?:
       className="fixed top-0 left-0 right-0 z-40"
       style={{
         height: '56px',
-        background: 'rgba(255,255,255,0.82)',
+        // 跟左 Sidebar #F4F4F2 同色：左 + 顶 连续浅暖灰 L 型 frame，主区白形成对比
+        background: 'rgba(244,244,242,0.92)',
         backdropFilter: 'saturate(180%) blur(16px)',
         WebkitBackdropFilter: 'saturate(180%) blur(16px)',
         borderBottom: '1px solid rgba(15,23,42,0.06)',
@@ -193,7 +194,7 @@ export function TopBar({ onOpenPost, onOpenAgent: _onOpenAgent }: { onOpenPost?:
             <span>跟 Agent 聊</span>
           </button>
 
-          {/* Post CTA —— 主紫实心 + figma 风渐变 inset 反光 */}
+          {/* Post CTA —— 紫色渐变平面风（去掉立体 inset 反光，统一品牌色 #4F46E5 → #7C3AED） */}
           <button
             onClick={onOpenPost}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all"
@@ -202,11 +203,21 @@ export function TopBar({ onOpenPost, onOpenAgent: _onOpenAgent }: { onOpenPost?:
               fontWeight: 600,
               letterSpacing: '-0.005em',
               color: '#FFFFFF',
-              background: 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)',
-              boxShadow: '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              transform: 'translateY(0)',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #4F46E5 0%, #4338CA 60%, #3730A3 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)';
+              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)';
+              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)';
+            }}
           >
             <Plus style={{ width: '14px', height: '14px' }} />
             <span>{t('action.post' as TranslationKey)}</span>

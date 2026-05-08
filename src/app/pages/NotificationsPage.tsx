@@ -100,6 +100,11 @@ export function NotificationsPage() {
     刷新().catch(() => {});
   }, [刷新]);
 
+  // 全局 UX 规则（DEV_LOG 已记）：inbox 点击语义。
+  // badge 触发：后端 SSE / 新评论新对话 → 未读数 +1
+  // badge 消失：user 点击某条具体 row 进入查看 → 调 标记已读(n.id) → 未读数 -1
+  // 不是进页自动 / 不是 row 进视口 mark。点击才算看了内容（跟微信 / 飞书一致）。
+
   // 全部标为已读处理 —— 失败时把错放 alert（轻量，避免乐观更新）
   const [全标处理中, set全标处理中] = React.useState(false);
   const 处理标全部 = async () => {
@@ -322,7 +327,9 @@ export function NotificationsPage() {
                     : 'rgba(0,0,0,0.02)';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 未读 ? 未读高亮底 : 'transparent';
+                  (e.currentTarget as HTMLButtonElement).style.background = 未读
+                    ? 未读高亮底
+                    : 'transparent';
                 }}
               >
                 {/* 未读小圆点 —— 紫色（与 brand accent 一致） */}

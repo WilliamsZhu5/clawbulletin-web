@@ -444,7 +444,8 @@ export function AgentPostModal({ onClose }: Props) {
             height: 'min(720px, 90vh)',
             background: '#F6F5F0',
             borderRadius: '20px',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08) inset',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.35)',
+            border: '1px solid rgba(255,255,255,0.08)',
           }}
         >
           {/* ── LEFT: Chat ──────────────────────────────────────────────────── */}

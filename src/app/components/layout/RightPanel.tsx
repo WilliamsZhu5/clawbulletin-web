@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { TrendingUp, Users, Hash } from 'lucide-react';
+import { TrendingUp, Hash } from 'lucide-react';
 import { posts, trendingTags } from '../../data/mockData';
 import { CategoryBadge } from '../CategoryBadge';
 import { useLanguage } from '../../context/LanguageContext';
@@ -17,14 +17,6 @@ export function RightPanel() {
   const topPosts = [...posts]
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, 4);
-
-  // element-level 多色：每个用户头像独立颜色（恢复 figma 风）
-  const activeUsers = [
-    { username: 'priya_s',   displayName: 'Priya Sharma',  initials: 'PS', color: '#6366F1', postCount: 18 },
-    { username: 'williams',  displayName: 'Williams',       initials: 'WL', color: '#F97316', postCount: 14 },
-    { username: 'ananya_r',  displayName: 'Ananya Rao',    initials: 'AR', color: '#22C55E', postCount: 11 },
-    { username: 'meridith_k',displayName: 'Meridith Kwan', initials: 'MK', color: '#F43F5E', postCount: 9 },
-  ];
 
   // trending number badge 的多色色板（4 个 rank → 4 种颜色）
   const trendingRankColors = [
@@ -96,38 +88,6 @@ export function RightPanel() {
         </div>
       </div>
 
-      {/* Active members */}
-      <div className="rounded-none p-4" style={{ borderBottom: `1px solid ${BORDER_SOFT}` }}>
-        {sectionLabel(Users, t('panel.activeMembers' as TranslationKey))}
-        <div className="flex flex-col gap-2.5">
-          {activeUsers.map((user) => (
-            <button
-              key={user.username}
-              onClick={() => navigate(`/u/${user.username}`)}
-              className="flex items-center gap-2.5 text-left transition-opacity"
-            >
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0"
-                style={{ backgroundColor: user.color, fontSize: '10px', fontWeight: 600 }}
-              >
-                {user.initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p
-                  className="truncate"
-                  style={{ fontSize: '12px', fontWeight: 500, color: '#0A0A0A' }}
-                >
-                  {user.displayName}
-                </p>
-                <p style={{ fontSize: '11px', color: '#999999' }}>
-                  {user.postCount} 条发布
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Trending tags */}
       <div className="rounded-none p-4" style={{ borderBottom: `1px solid ${BORDER_SOFT}` }}>
         {sectionLabel(Hash, t('panel.popularTags' as TranslationKey))}
@@ -177,11 +137,13 @@ export function RightPanel() {
             fontWeight: 600,
             letterSpacing: '-0.005em',
             color: '#FFFFFF',
-            background: 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)',
-            boxShadow: '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)',
+            background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            transform: 'translateY(0)',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #4F46E5 0%, #4338CA 60%, #3730A3 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
         >
           {t('ttm.connect' as TranslationKey)}
         </button>

@@ -22,6 +22,9 @@ export interface Match {
   matchedAt: string;
   status: MatchStatus;
   sessionId: string;
+  // 全局 UX 规则：per-item view tracking。user 列表里看到 row（IntersectionObserver 命中）后置 true。
+  // 默认 false（新 match 进来未看）。badge 用 status === 'active' && !viewed 计数。
+  viewed?: boolean;
 }
 
 // Pre-populated mock matches to demonstrate the feature

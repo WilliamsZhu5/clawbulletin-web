@@ -39,7 +39,7 @@ const categoryItems: Array<{
   { id: 'events',      tKey: 'cat.events',      icon: CalendarDays,  color: '#F43F5E' },
 ];
 
-// nav 项：path === '__my_agent__' 是哨兵值，单独渲染（用 Bot icon + 中文写死的 label）
+// nav 项 — "跟 Agent 聊"已合并进 /messages（顶部置顶虚拟会话），不再单独列项
 const navItems: Array<{
   tKey: TranslationKey;
   icon: React.ComponentType<{ style?: React.CSSProperties; strokeWidth?: number }> | null;
@@ -48,8 +48,6 @@ const navItems: Array<{
 }> = [
   { tKey: 'nav.home',     icon: Home,          path: '/' },
   { tKey: 'nav.trending', icon: TrendingUp,    path: '/trending' },
-  // 跟我的 Agent 聊（A1）
-  { tKey: 'nav.home',     icon: Bot,           path: '/my-agent', label: '跟 Agent 聊' },
   { tKey: 'nav.messages', icon: MessageSquare,  path: '/messages' },
   // 通知中心 — Sidebar 铃铛（v1 通知中心 F4）
   { tKey: 'nav.notifications', icon: Bell, path: '/notifications' },
@@ -59,7 +57,8 @@ const navItems: Array<{
 ];
 
 // figma 风 token：浅冷白底 + 紫色 hover/active accent
-const BG = '#FCFCFD';
+// 全局 UX：左 Sidebar 比主区白深 ~5%，制造左右层次（不是拼接 / 不是 brand 色），稳妥的浅暖灰
+const BG = '#F4F4F2';
 const BORDER = 'rgba(15,23,42,0.06)';
 const TEXT_DIM = '#999999';
 const TEXT_MID = '#525252';
@@ -87,7 +86,9 @@ export function Sidebar() {
     else navigate(`/c/${catId}`);
   };
 
-  const activeMatchCount = matches.filter((m) => m.status === 'active').length;
+  // 全局 UX 规则：per-item view tracking — user 在 /matches 列表里把哪条翻进视口才标 viewed
+  // badge 数 = active 且未看的（user 没滚到底前还有剩余未看，badge 不归零）
+  const activeMatchCount = matches.filter((m) => m.status === 'active' && !m.viewed).length;
 
   return (
     <aside
@@ -242,11 +243,13 @@ export function Sidebar() {
                     fontWeight: 600,
                     letterSpacing: '-0.005em',
                     color: '#FFFFFF',
-                    background: 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)',
-                    boxShadow: '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+                    transform: 'translateY(0)',
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #4F46E5 0%, #4338CA 60%, #3730A3 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79,70,229,0.28), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, #5B52EA 0%, #4F46E5 50%, #4338CA 100%)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 2px rgba(79,70,229,0.22), inset 0 1px 0 rgba(255,255,255,0.18)'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
                 >
                   <LogIn style={{ width: '12px', height: '12px' }} />
                   <span>登录 / 注册</span>

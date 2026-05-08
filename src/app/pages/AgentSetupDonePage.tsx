@@ -335,13 +335,15 @@ export function AgentSetupDonePage() {
             onClick={() => navigate('/create')}
             className="w-full py-3 rounded-xl transition-all"
             style={{
-              background: '#4F46E5',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
               color: '#FFFFFF',
               fontSize: 13,
               fontWeight: 600,
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#4338CA'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#4F46E5'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
           >
             去发第一篇帖子
           </button>

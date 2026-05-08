@@ -262,8 +262,17 @@ export function CreatePostPage() {
             <button
               onClick={让agent起草}
               disabled={起草中 || !用户描述.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ fontSize: '13px', fontWeight: 500 }}
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+              onMouseEnter={(e) => { if (!起草中 && 用户描述.trim()) { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; } }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
             >
               <Sparkles className="w-4 h-4" />
               {起草中 ? 'Agent 正在起草…' : '让 Agent 起草'}
@@ -306,8 +315,17 @@ export function CreatePostPage() {
           {createdPostId && (
             <button
               onClick={() => navigate(`/post/${createdPostId}`)}
-              className="px-5 py-2.5 bg-[#141414] text-white rounded-xl hover:bg-[#000] transition-all"
-              style={{ fontSize: '13px' }}
+              className="px-5 py-2.5 rounded-xl transition-all"
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
             >
               查看帖子
             </button>
@@ -328,8 +346,17 @@ export function CreatePostPage() {
               set起草错误(null);
               setForm({ category: null, subcategory: '', title: '', body: '', tags: [], location: '', compensation: '', contactPreference: 'talkto' });
             }}
-            className="px-5 py-2.5 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors"
-            style={{ fontSize: '13px' }}
+            className="px-5 py-2.5 rounded-xl transition-all"
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
           >
             再发一条
           </button>
@@ -387,12 +414,16 @@ export function CreatePostPage() {
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
                 s < step
-                  ? 'bg-[#141414] text-white'
+                  ? 'text-white'
                   : s === step
-                  ? 'bg-[#141414] text-white ring-4 ring-[#141414]/10'
+                  ? 'text-white ring-4 ring-[#4F46E5]/10'
                   : 'bg-[#F4F4F2] text-[#BBBBB6]'
               }`}
-              style={{ fontSize: '12px', fontWeight: 600 }}
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                background: s <= step ? 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' : undefined,
+              }}
             >
               {s < step ? <Check className="w-3.5 h-3.5" /> : s}
             </div>
@@ -429,7 +460,7 @@ export function CreatePostPage() {
                     onClick={() => { updateForm('category', cat.id); updateForm('subcategory', ''); }}
                     className={`text-left p-4 rounded-xl border-2 transition-all ${
                       isSelected
-                        ? 'border-[#141414] bg-white'
+                        ? 'border-[#4F46E5] bg-white'
                         : 'border-[#E8E8E4] hover:border-[#C8C8C4] hover:bg-[#FAFAF8]'
                     }`}
                   >
@@ -793,8 +824,17 @@ export function CreatePostPage() {
           <button
             onClick={() => setStep((s) => s + 1)}
             disabled={!canProceed()}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ fontSize: '13px', fontWeight: 500 }}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            }}
+            onMouseEnter={(e) => { if (canProceed()) { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; } }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
           >
             下一步
             <ChevronRight className="w-4 h-4" />
@@ -805,8 +845,17 @@ export function CreatePostPage() {
             <button
               onClick={handlePublish}
               disabled={!form.title.trim() || !form.body.trim() || publishing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#141414] text-white rounded-xl hover:bg-[#2A2A2A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ fontSize: '13px', fontWeight: 500 }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+              onMouseEnter={(e) => { if (form.title.trim() && form.body.trim() && !publishing) { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.3)'; } }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.25)'; }}
             >
               <Check className="w-4 h-4" />
               {publishing ? '发布中…' : '发布帖子'}
