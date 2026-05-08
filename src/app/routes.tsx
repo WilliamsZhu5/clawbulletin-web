@@ -70,4 +70,9 @@ export const router = createBrowserRouter([
       { path: '*', Component: NotFoundPage },
     ],
   },
-]);
+], {
+  // 让 vite build --base=/path/ 能正确部署到子路径（如 /mockup/zhu-v1-0/）
+  // 本地 dev: BASE_URL = '/'（默认），basename 等价于无前缀
+  // 子路径部署: build 时 vite 自动注入 BASE_URL，basename 跟着对齐
+  basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/',
+});
